@@ -1,0 +1,19 @@
+#compiled python modules
+*.pyc
+
+#Python egg metadata for atomman
+*.egg-info/
+*.egg
+
+#PyPI dist and build
+dist/
+build/
+dist-old/
+
+
+# Jupyter checkpoints
+*.ipynb_checkpoints
+
+# VSCode metadata
+.vscode
+
