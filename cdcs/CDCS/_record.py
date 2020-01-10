@@ -200,7 +200,6 @@ def update_record(self, record=None, template=None, title=None, filename=None,
     if response.status_code == 200:
         print(f'record {record.title} ({record.id}) has been updated.')
 
-
 def delete_record(self, record=None, template=None, title=None):
     """
     Deletes a single data record from the curator.
