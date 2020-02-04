@@ -9,7 +9,7 @@
 dist/
 build/
 dist-old/
-
+upload_package.bash
 
 # Jupyter checkpoints
 *.ipynb_checkpoints
