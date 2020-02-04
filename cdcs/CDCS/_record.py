@@ -23,20 +23,22 @@ def get_records(self, template=None, title=None):
 
     # Manage template
     if template is not None:
-        params['templates'] = []
+        #params['templates'] = []
         # Handle template series
         if isinstance(template, pd.Series):
-            params['templates'].append({"id":template.id})
+            params['template'] = template.id
+            #params['templates'].append({"id":template.id})
         
         # Handle template titles
         else:
             template = self.get_template(title=template)
-            params['templates'].append({"id":template.id})
+            params['template'] = template.id
+            #params['templates'].append({"id":template.id})
     
     # Manage title
     if title is not None:
         params['title'] = title
-
+    
     # Get response
     rest_url = '/rest/data/'
     response = self.get(rest_url, params=params)
