@@ -5,7 +5,7 @@ def getreadme():
         return readme_file.read()
    
 setup(name = 'cdcs',
-      version = '0.1.1',
+      version = '0.1.2',
       description = 'Python API client for performing REST calls to configurable data curation system (CDCS) databases',
       long_description = getreadme(),
       classifiers=[
@@ -14,6 +14,7 @@ setup(name = 'cdcs',
         'Natural Language :: English',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Topic :: Scientific/Engineering :: Physics'
       ],
       keywords = [
