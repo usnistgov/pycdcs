@@ -75,7 +75,7 @@ def get_record(self, template=None, title=None):
         raise ValueError('Multiple matching records found')
 
 def upload_record(self, template, filename=None, content=None, title=None,
-                    duplicatecheck=True):
+                  duplicatecheck=True, verbose=False):
     """
     Adds a data record to the curator
 
@@ -93,6 +93,8 @@ def upload_record(self, template, filename=None, content=None, title=None,
             same template and title.  If False, no check is performed possibly
             allowing for multiple records with the same title to exist in the
             database.
+        verbose: (bool, optional) Setting this to True will print extra
+            status messages.  Default value is False.
     """
 
     # Fetch template by title if needed
@@ -153,12 +155,12 @@ def upload_record(self, template, filename=None, content=None, title=None,
     rest_url = '/rest/data/'
     response = self.post(rest_url, data=data)
     
-    if response.status_code == 201:
+    if verbose and response.status_code == 201:
         record_id = response.json()['id']
         print(f'record {title} ({record_id}) successfully uploaded.')
 
 def update_record(self, record=None, template=None, title=None, filename=None,
-                  content=None):
+                  content=None, verbose=False):
     """
     Deletes a single data record from the curator.
 
@@ -175,6 +177,8 @@ def update_record(self, record=None, template=None, title=None, filename=None,
             record content to upload. Either filename or content required.
         content: (str or bytes, optional) New content to upload. Either
             filename or content required.
+        verbose: (bool, optional) Setting this to True will print extra
+            status messages.  Default value is False.
     """
     # Load content from file
     if filename is not None:
@@ -199,10 +203,10 @@ def update_record(self, record=None, template=None, title=None, filename=None,
     rest_url = f'/rest/data/{record.id}/'
     response = self.patch(rest_url, data=data)
     
-    if response.status_code == 200:
+    if verbose and response.status_code == 200:
         print(f'record {record.title} ({record.id}) has been updated.')
 
-def delete_record(self, record=None, template=None, title=None):
+def delete_record(self, record=None, template=None, title=None, verbose=False):
     """
     Deletes a single data record from the curator.
 
@@ -215,6 +219,8 @@ def delete_record(self, record=None, template=None, title=None):
             uniquely identify one record.
         title: (str, optional) Title of the record to delete.  template +
             title values must uniquely identify one record.
+        verbose: (bool, optional) Setting this to True will print extra
+            status messages.  Default value is False.
     """
     if record is None:
         record = self.get_record(template=template, title=title)
@@ -222,5 +228,5 @@ def delete_record(self, record=None, template=None, title=None):
     rest_url = f'/rest/data/{record.id}/'
     response = self.delete(rest_url)
     
-    if response.status_code == 204:
+    if verbose and response.status_code == 204:
         print(f'record {record.title} ({record.id}) has been deleted.')

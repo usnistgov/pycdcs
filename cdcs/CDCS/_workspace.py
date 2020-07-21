@@ -48,7 +48,7 @@ def get_workspace(self, title=None):
     else:
         raise ValueError('Multiple matching workspaces found')
 
-def assign_record_workspace(self, records, workspace):
+def assign_record_workspace(self, records, workspace, verbose=False):
         """
         Assigns one or more records to the specified workspace.
 
@@ -57,6 +57,8 @@ def assign_record_workspace(self, records, workspace):
                 assign to the workspace.
             workspace: (pandas.Series) The workspace to assign the record(s)
                 to.
+            verbose: (bool, optional) Setting this to True will print extra
+                status messages.  Default value is False.
         """
         if isinstance(workspace, pd.Series):
             workspace_id = workspace.id
@@ -77,10 +79,10 @@ def assign_record_workspace(self, records, workspace):
             rest_url = f'/rest/data/{record_id}/assign/{workspace_id}'
             response = self.patch(rest_url)
 
-            if response.status_code == 200:
+            if verbose and response.status_code == 200:
                 print(f'record {record_title} ({record_id}) assigned to workspace {workspace_title} ({workspace_id})')
 
-def assign_blob_workspace(self, blobs, workspace):
+def assign_blob_workspace(self, blobs, workspace, verbose=False):
     """
     Assigns one or more blobs to the specified workspace.
 
@@ -89,6 +91,8 @@ def assign_blob_workspace(self, blobs, workspace):
             assign to the workspace.
         workspace: (pandas.Series) The workspace to assign the blob(s)
             to.
+        verbose: (bool, optional) Setting this to True will print extra
+            status messages.  Default value is False.
     """
     if isinstance(workspace, pd.Series):
         workspace_id = workspace.id
@@ -109,7 +113,7 @@ def assign_blob_workspace(self, blobs, workspace):
         rest_url = f'/rest/blob/{blob_id}/assign/{workspace_id}'
         response = self.patch(rest_url)
 
-        if response.status_code == 200:
+        if verbose and response.status_code == 200:
             print(f'blob {blob_filename} ({blob_id}) assigned to workspace {workspace_title} ({workspace_id})')
 
 @property
