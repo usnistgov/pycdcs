@@ -1,3 +1,4 @@
+# coding: utf-8
 
 # Standard library imports
 from pathlib import Path
