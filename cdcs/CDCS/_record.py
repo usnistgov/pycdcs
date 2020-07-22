@@ -6,6 +6,8 @@ from pathlib import Path
 # https://pandas.pydata.org/
 import pandas as pd
 
+from ..aslist import aslist
+
 def get_records(self, template=None, title=None):
     """
     Retrieves user records.
@@ -75,8 +77,60 @@ def get_record(self, template=None, title=None):
     else:
         raise ValueError('Multiple matching records found')
 
+def assign_records(self, workspace, records=None, ids=None, template=None,
+                   title=None, verbose=False):
+    """
+    Assigns one or more records to a workspace.
+
+    Args:
+        workspace: (str or pandas.Series) The workspace or workspace title to
+            assign the records to.
+        records: (pandas.Series or pandas.DataFrame, optional) Pre-selected
+            records to assign to the workspace.  Cannot be given with ids,
+            template, or title.
+        ids: (str or list, optional) The ID(s) of the records to assign to the
+            workspace.  Selecting records using ids has the least overhead.
+            Cannot be given with records, template, or title.
+        template: (str or pandas.Series, optional) The template or template
+            title of records to assign to the workspace.  Cannot be given with
+            records or ids.
+        title: (str, optional) The title of a record to assign to the
+            workspace. Cannot be given with records or ids.
+        verbose (bool, optional) Setting this to True will print extra
+            status messages.  Default value is False.
+    """
+    # Get workspace id
+    if isinstance(workspace, str):
+        workspace = self.get_workspace(workspace)
+    workspace_id = workspace.id
+    
+    # Get records from template and/or title
+    if template is not None or title is not None:
+        if records is not None or ids is not None:
+            raise ValueError('template/title cannot be given with records or ids')
+        records = get_records(self, template=template, title=title)
+
+    # Get ids from records
+    if records is not None:
+        if ids is not None:
+            raise ValueError('records and ids cannot both be given')
+        if isinstance(records, pd.Series):
+            ids = [records.id]
+        elif isinstance(records, pd.DataFrame):
+            ids = records.id.tolist()
+        else:
+            raise TypeError('invalid records type')
+    
+    # Assign records to the workspace
+    for record_id in aslist(ids):
+        rest_url = f'/rest/data/{record_id}/assign/{workspace_id}'
+        response = self.patch(rest_url)
+
+        if verbose and response.status_code == 200:
+            print(f'record {record_id} assigned to workspace {workspace_id}')
+
 def upload_record(self, template, filename=None, content=None, title=None,
-                  duplicatecheck=True, verbose=False):
+                  workspace=None, duplicatecheck=True, verbose=False):
     """
     Adds a data record to the curator
 
@@ -89,6 +143,8 @@ def upload_record(self, template, filename=None, content=None, title=None,
             filename or content required.
         title: (str, optional) Title to save the record as.  Optional if
             filename is given (title will be taken as filename without ext).
+        workspace (str or pandas.Series, optional) If given, the record will be
+            assigned to this workspace after successfully being uploaded.
         duplicatecheck: (bool, optional) If True (default), then a ValueError
             will be raised if a record already exists in the database with the
             same template and title.  If False, no check is performed possibly
@@ -160,10 +216,14 @@ def upload_record(self, template, filename=None, content=None, title=None,
         record_id = response.json()['id']
         print(f'record {title} ({record_id}) successfully uploaded.')
 
+    if workspace is not None:
+        assign_records(self, workspace=workspace, ids=[response.json()['id']],
+                       verbose=verbose)
+
 def update_record(self, record=None, template=None, title=None, filename=None,
-                  content=None, verbose=False):
+                  content=None, workspace=None, verbose=False):
     """
-    Deletes a single data record from the curator.
+    Updates the content for a single data record in the curator.
 
     Args:
         record: (pandas.Series, optional) A previously identified record to
@@ -178,6 +238,8 @@ def update_record(self, record=None, template=None, title=None, filename=None,
             record content to upload. Either filename or content required.
         content: (str or bytes, optional) New content to upload. Either
             filename or content required.
+        workspace (str or pandas.Series, optional) If given, the record will be
+            assigned to this workspace after successfully being updated.
         verbose: (bool, optional) Setting this to True will print extra
             status messages.  Default value is False.
     """
@@ -206,6 +268,10 @@ def update_record(self, record=None, template=None, title=None, filename=None,
     
     if verbose and response.status_code == 200:
         print(f'record {record.title} ({record.id}) has been updated.')
+    
+    if workspace is not None:
+        assign_records(self, workspace=workspace, ids=[record.id],
+                       verbose=verbose)
 
 def delete_record(self, record=None, template=None, title=None, verbose=False):
     """

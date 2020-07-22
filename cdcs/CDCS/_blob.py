@@ -6,12 +6,18 @@ from pathlib import Path
 # https://pandas.pydata.org/
 import pandas as pd
 
-def upload_blob(self, filename, blobbytes=None, verbose=False):
+from ..aslist import aslist
+
+def upload_blob(self, filename, blobbytes=None, workspace=None, verbose=False):
     """
     Adds a blob file to the repository.
     
     Args:
         filename: (str or Path) the path to the file to upload.
+        blobbytes: (bytesIO, optional) Pre-loaded file contents.  Allows
+            files already opened to be passed in.
+        workspace (str or pandas.Series, optional) If given, the blob will be
+            assigned to this workspace after successfully being uploaded.
         verbose: (bool, optional) Setting this to True will print extra
             status messages.  Default value is False.
     Returns:
@@ -37,6 +43,9 @@ def upload_blob(self, filename, blobbytes=None, verbose=False):
         blob = pd.Series(response.json())
         print(f'File "{filename}" uploaded as blob "{blob.filename}" ({blob.id})')
     
+    if workspace is not None:
+        assign_blobs(self, workspace, ids=blob.id, verbose=verbose)
+
     return blob.handle
     
 def get_blobs(self, filename=None):
@@ -92,6 +101,55 @@ def get_blob(self, id=None, filename=None):
         rest_url = f'/rest/blob/{id}'
         response = self.get(rest_url)
         return pd.Series(response.json())
+
+def assign_blobs(self, workspace, blobs=None, ids=None, filename=None,
+                 verbose=False):
+    """
+    Assigns one or more blobs to a workspace.
+
+    Args:
+        workspace: (str or pandas.Series) The workspace or workspace title to
+            assign the blobs to.
+        blobs: (pandas.Series or pandas.DataFrame, optional) Pre-selected
+            blobs to assign to the workspace.  Cannot be given with ids
+            or filename.
+        ids: (str or list, optional) The ID(s) of the blobs to assign to the
+            workspace.  Selecting blobs using ids has the least overhead.
+            Cannot be given with blobs or filename.
+        filename: (str, optional) The name of the blob file to assign to the
+            workspace.  Cannot be given with blobs or ids.
+        verbose (bool, optional) Setting this to True will print extra
+            status messages.  Default value is False.
+    """
+    # Get workspace id
+    if isinstance(workspace, str):
+        workspace = self.get_workspace(workspace)
+    workspace_id = workspace.id
+    
+    # Get blobs from filename
+    if filename is not None:
+        if blobs is not None or ids is not None:
+            raise ValueError('filename cannot be given with blobs or ids')
+        blobs = get_blobs(self, filename=filename)
+
+    # Get ids from blobs
+    if blobs is not None:
+        if ids is not None:
+            raise ValueError('blobs and ids cannot both be given')
+        if isinstance(blobs, pd.Series):
+            ids = [blobs.id]
+        elif isinstance(blobs, pd.DataFrame):
+            ids = blobs.id.tolist()
+        else:
+            raise TypeError('invalid blobs type')
+    
+    # Assign blobs to the workspace
+    for blob_id in aslist(ids):
+        rest_url = f'/rest/blob/{blob_id}/assign/{workspace_id}'
+        response = self.patch(rest_url)
+
+        if verbose and response.status_code == 200:
+            print(f'blob {blob_id} assigned to workspace {workspace_id}')
 
 def get_blob_contents(self, blob=None, id=None, filename=None):
     """
