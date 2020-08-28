@@ -15,8 +15,7 @@ class RestClient(object):
     """
     Generic class for building REST calls to web databases in Python.
     """
-    def __init__(self, host, username=None, password=None, certification=None,
-                 **kwargs):
+    def __init__(self, host, username=None, password=None, certification=None):
         """
         Class initializer. Tests and stores access information.
         
@@ -31,7 +30,7 @@ class RestClient(object):
         """
         # Set access information
         self.login(host, username=username, password=password,
-                   certification=certification, **kwargs)
+                   certification=certification)
 
     def __str__(self):
         """
