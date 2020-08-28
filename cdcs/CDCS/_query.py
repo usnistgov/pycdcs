@@ -10,10 +10,11 @@ import pandas as pd
 from .. import aslist
 
 def query(self, template=None, title=None, keyword=None,
-            mongoquery=None):
+          mongoquery=None, page=None):
     """
-    Search all published local data records.  Note: specifying no
-    parameters will return all records in the database!
+    Search all published local data records using either keyword or mongo-style
+    queries. Note: specifying no parameters will return all records in the
+    database!
 
     Arg:
         template: (list, str, pandas.Series or pandas.DataFrame, optional)
@@ -21,10 +22,15 @@ def query(self, template=None, title=None, keyword=None,
         title: (str, optional) Record title to limit the search by.
         keyword: (str or list, optional) Keyword(s) to use for a
             string-based search of record content.  Only records containing
-            all keywords will be returned. 
+            all keywords will be returned. keyword and mongoquery cannot both
+            be given.
         mongoquery: (str or dict, optional) Mongodb find query to use in
             limiting searches by record element fields.  Note: only record
-            parsing is supported, not field projection.
+            parsing is supported, not field projection.  keyword and mongoquery
+            cannot both be given.
+        page: (int or None, optional) If an int, then will return results only
+            for that page of 10 records.  If None (default), then results for
+            all pages will be compiled and returned.
 
     Returns:
         pandas.DataFrame: All records matching the search request
@@ -83,20 +89,29 @@ def query(self, template=None, title=None, keyword=None,
     if title is not None:
         data['title'] = title
 
-    # Get response
-    response = self.post(rest_url, data=data)
-    response_json = response.json()
-    records = response_json['results']
+    # Get results from all pages
+    if page is None:
 
-    # Repeat post until all content received
-    params = {'page':2}
-    while response_json['next'] is not None:
+        # Get response
+        response = self.post(rest_url, data=data)
+        response_json = response.json()
+        records = response_json['results']
+
+        # Repeat post until all content received
+        params = {'page':2}
+        while response_json['next'] is not None:
+            response = self.post(rest_url, params=params, data=data)
+            response_json = response.json()
+            records.extend(response_json['results'])
+            params['page'] += 1
+        assert len(records) == response_json['count']
+        records = pd.DataFrame(records)
+
+    else:
+        params = {'page':page}
         response = self.post(rest_url, params=params, data=data)
         response_json = response.json()
-        records.extend(response_json['results'])
-        params['page'] += 1
-    assert len(records) == response_json['count']
-    records = pd.DataFrame(records)
+        records = pd.DataFrame(response_json['results'])
 
     # Set template titles
     def set_template_titles(series, templates):
