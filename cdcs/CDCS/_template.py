@@ -9,12 +9,16 @@ def get_template_managers(self, title=None, is_disabled=False,
     get_template_managers: get template managers from a curator
 
     Args:
-        curator (CDCS): The curator to access.
+        title (str, optional): The template title to limit the search by.
+        is_disabled (bool, optional): If True, then disabled templates will
+            be returned.  If False (default), then active templates will be
+            returned.
         useronly (bool, optional): If True, only a user's templates are
-            returned. If False, then all global templates are returned.
+            returned. If False (default), then all global templates are
+            returned.
 
     Returns:
-        list: All template managers as dictionaries.
+        pandas.DataFrame: All template managers.
 
     Raises:
         TypeError: If useronly is not bool.
@@ -46,12 +50,18 @@ def get_templates(self, title=None, is_disabled=False, current=True,
     Get all templates from a curator.
 
     Args:
-        curator (CDCS): The curator to access.
+        title (str, optional): The template title to limit the search by.
+        is_disabled (bool, optional): If True, then disabled templates will
+            be returned.  If False (default), then active templates will be
+            returned.
+        current (bool, optional): If True (default), only current template
+            versions will be returned.
         useronly (bool, optional): If True, only a user's templates are
-            returned. If False, then all global templates are returned.
+            returned. If False (default), then all global templates are
+            returned.
 
     Returns:
-        list: All current templates as dictionaries.
+        pandas.DataFrame: All current templates.
     """
 
     # Get template managers
@@ -99,16 +109,21 @@ def get_templates(self, title=None, is_disabled=False, current=True,
 def get_template(self, title=None, is_disabled=False, current=True,
                     useronly=False):
     """
-    Get all templates from a curator.
+    Gets a single template from a curator.
 
     Args:
-        curator (CDCS): The curator to access.
-        title (str): The title of the template to fetch.
+        title (str, optional): The template title to limit the search by.
+        is_disabled (bool, optional): If True, then disabled templates will
+            be returned.  If False (default), then active templates will be
+            returned.
+        current (bool, optional): If True (default), only current template
+            versions will be returned.
         useronly (bool, optional): If True, only a user's templates are
-            returned. If False, then all global templates are returned.
+            returned. If False (default), then all global templates are
+            returned.
 
     Returns:
-        dict: The matching template dictionary.
+        pandas.Series: The matching template.
 
     Raises:
         ValueError: If no template named title found.

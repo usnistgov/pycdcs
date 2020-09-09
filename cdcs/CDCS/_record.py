@@ -227,8 +227,8 @@ def update_record(self, record=None, template=None, title=None, filename=None,
 
     Args:
         record: (pandas.Series, optional) A previously identified record to
-            delete.  As this uniquely defines a record, the other parameters
-            are ignored.
+            delete.  As this uniquely defines a record, the template and title
+            parameters are ignored if given.
         template: (str or pandas.Series, optional) The template or template
             title associated with the record.  template + title values must
             uniquely identify one record.

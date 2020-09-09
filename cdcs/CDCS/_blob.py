@@ -38,9 +38,9 @@ def upload_blob(self, filename, blobbytes=None, workspace=None, verbose=False):
     # Send request
     rest_url = '/rest/blob/'
     response = self.post(rest_url, files=files, data=data)
-    
-    if verbose and response.status_code == 201:
-        blob = pd.Series(response.json())
+    blob = pd.Series(response.json())
+
+    if verbose and response.status_code == 201:    
         print(f'File "{filename}" uploaded as blob "{blob.filename}" ({blob.id})')
     
     if workspace is not None:
