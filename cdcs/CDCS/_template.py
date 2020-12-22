@@ -35,7 +35,7 @@ def get_template_managers(self, title=None, is_disabled=False,
     params = {}
     if title is not None:
         params['title'] = title
-    if is_disabled is not None:
+    if is_disabled is True:
         params['is_disabled'] = is_disabled
     
     # Get response
