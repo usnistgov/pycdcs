@@ -34,10 +34,7 @@ def query(self, template=None, title=None, keyword=None,
 
     Returns:
         pandas.DataFrame: All records matching the search request
-    """
-    # Load all templates
-    templates = self.get_templates()
-    
+    """  
     # Set data based on arguments
     data = {'all': 'true'} 
     data = {}
@@ -65,25 +62,22 @@ def query(self, template=None, title=None, keyword=None,
         
         # Handle DataFrames
         if isinstance(template, pd.DataFrame):
+            templates = template
             for template_id in template.id.values:
                 data['templates'].append({"id":template_id})
         else:
             for t in aslist(template):
-                # Handle Series
-                if isinstance(t, pd.Series):
-                    data['templates'].append({"id":t.id})
+                templates = []
+                if not isinstance(t, pd.Series):
+                    t = self.get_template(title=t)
                 
-                # Handle template titles
-                else:
-                    matches = templates[templates.title == t]
-                    try:
-                        assert len(matches) == 1
-                    except:
-                        raise ValueError(f'template {t} not uniquely found')
-                    t = matches.iloc[0]
-                    data['templates'].append({"id":t.id})
+                data['templates'].append({"id":t.id})
+                templates.append(t)
+            templates = pd.DataFrame(templates)    
                     
         data['templates'] = json.dumps(data['templates'])
+    else:
+        templates = self.get_templates()
 
     # Manage title
     if title is not None:
