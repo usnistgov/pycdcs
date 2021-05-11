@@ -9,7 +9,7 @@ class CDCS(RestClient):
     (CDCS).  Designed for versions 2.5+.
     """
     def __init__(self, host, cdcsversion='2.10.0', username=None, password=None,
-                 certification=None):
+                 auth=None, cert=None, verify=True):
         """
         Class initializer. Tests and stores access information.
         
@@ -22,8 +22,15 @@ class CDCS(RestClient):
                 server.  A prompt will ask for the username if not given.
             password: (str, optional) Password of desired account on the
                 server.  A prompt will ask for the password if not given.
-            certification: (str, optional) Path to an authentication
-                certificate, if needed, to access the database's server.
+            auth: (tuple, optional) Auth tuple to enable
+                Basic/Digest/Custom HTTP Auth.  Alternative to giving
+                username and password seperately.
+            cert: (str or tuple, optional) if String, path to ssl client 
+                cert file (.pem). If Tuple, (‘cert’, ‘key’) pair.
+            verify: (bool or str, optional) Either a boolean, in which case
+                it controls whether we verify the server’s TLS certificate,
+                or a string, in which case it must be a path to a CA
+                bundle to use. Defaults to True.
         """
         # Handle CDCS version 
         cdcsversion = cdcsversion.split('.')
@@ -38,8 +45,8 @@ class CDCS(RestClient):
         self.__cdcsversion = cdcsversion
 
         # Call RestClient's init
-        super().__init__(host, username=username, password=password,
-                 certification=certification)
+        super().__init__(host, username=username, password=password, auth=auth,
+                         cert=cert, verify=verify)
 
     # Import defined methods
     from ._workspace import (get_workspaces, get_workspace,

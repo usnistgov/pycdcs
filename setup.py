@@ -1,11 +1,18 @@
 from setuptools import setup, find_packages
+import os
 
 def getreadme():
     with open('README.md') as readme_file:
         return readme_file.read()
-   
+
+def getversion():
+    """Fetches version information from VERSION file"""
+    with open(os.path.join('cdcs', 'VERSION')) as version_file:
+        version = version_file.read().strip()
+    return version
+
 setup(name = 'cdcs',
-      version = '0.1.4',
+      version = getversion(),
       description = 'Python API client for performing REST calls to configurable data curation system (CDCS) databases',
       long_description = getreadme(),
       classifiers=[
