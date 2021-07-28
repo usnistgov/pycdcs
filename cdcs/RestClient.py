@@ -8,15 +8,16 @@ from pathlib import Path
 import requests
 
 # Ignore certification warnings (for now)
-from requests.packages.urllib3.exceptions import InsecureRequestWarning # pylint: disable=import-error
-requests.packages.urllib3.disable_warnings(InsecureRequestWarning) # pylint: disable=no-member
+from requests.packages.urllib3.exceptions import InsecureRequestWarning 
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 class RestClient(object):
     """
     Generic class for building REST calls to web databases in Python.
     """
     def __init__(self, host, username=None, password=None, 
-                auth=None, cert=None, verify=True):
+                auth=None, cert=None, certification=None,
+                verify=True):
         """
         Class initializer. Tests and stores access information.
         
@@ -31,6 +32,8 @@ class RestClient(object):
                 username and password seperately.
             cert: (str, optional) if String, path to ssl client cert file
                 (.pem). If Tuple, (‘cert’, ‘key’) pair.
+            certification: (str, optional) Alias for cert. Retained for
+                compatibility.
             verify: (bool or str, optional) Either a boolean, in which case
                 it controls whether we verify the server’s TLS certificate,
                 or a string, in which case it must be a path to a CA
@@ -38,7 +41,8 @@ class RestClient(object):
         """
         # Set access information
         self.login(host, username=username, password=password,
-                   auth=auth, cert=cert, verify=verify)
+                   auth=auth, cert=cert, certification=certification,
+                   verify=verify)
 
     def __str__(self):
         """String representation."""
@@ -65,7 +69,7 @@ class RestClient(object):
         return self.__verify
 
     def login(self, host, username=None, password=None, auth=None, cert=None,
-              verify=True):
+              certification=None, verify=True):
         """
         Tests and stores access information.
         
@@ -80,6 +84,8 @@ class RestClient(object):
                 username and password seperately.
             cert: (str, optional) if String, path to ssl client cert file
                 (.pem). If Tuple, (‘cert’, ‘key’) pair.
+            certification: (str, optional) Alias for cert. Retained for
+                compatibility.
             verify: (bool or str, optional) Either a boolean, in which case
                 it controls whether we verify the server’s TLS certificate,
                 or a string, in which case it must be a path to a CA
@@ -114,6 +120,10 @@ class RestClient(object):
             username = auth[0]
 
         # Handle certification
+        if certification is not None:
+            if cert is not None:
+                raise ValueError('Both certification and cert given - they are aliases of each other')
+            cert = certification
         if isinstance(cert, str):
             cert = Path(cert)
             if cert.is_file():

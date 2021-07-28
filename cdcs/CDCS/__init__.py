@@ -8,8 +8,8 @@ class CDCS(RestClient):
     Class for accessing instances the Configurable Database Curation System
     (CDCS).  Designed for versions 2.5+.
     """
-    def __init__(self, host, cdcsversion='2.10.0', username=None, password=None,
-                 auth=None, cert=None, verify=True):
+    def __init__(self, host, cdcsversion='2.15.0', username=None, password=None,
+                 auth=None, cert=None, certification=None, verify=True):
         """
         Class initializer. Tests and stores access information.
         
@@ -27,6 +27,8 @@ class CDCS(RestClient):
                 username and password seperately.
             cert: (str or tuple, optional) if String, path to ssl client 
                 cert file (.pem). If Tuple, (‘cert’, ‘key’) pair.
+            certification: (str or tuple, optional) Alias for cert.  Retained
+                for compatibility.
             verify: (bool or str, optional) Either a boolean, in which case
                 it controls whether we verify the server’s TLS certificate,
                 or a string, in which case it must be a path to a CA
@@ -46,7 +48,7 @@ class CDCS(RestClient):
 
         # Call RestClient's init
         super().__init__(host, username=username, password=password, auth=auth,
-                         cert=cert, verify=verify)
+                         cert=cert, certification=certification, verify=verify)
 
     # Import defined methods
     from ._workspace import (get_workspaces, get_workspace,
