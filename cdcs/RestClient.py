@@ -153,7 +153,7 @@ class RestClient(object):
         # Default behavior is no test: must be set specific to database type
         pass
 
-    def request(self, method, rest_url, **kwargs):
+    def request(self, method, rest_url, checkstatus=True, **kwargs):
         """
         Wrapper around requests.request that automatically sets any access
         parameters based on the stored login information.
@@ -161,6 +161,9 @@ class RestClient(object):
         Args:
             method: (str) Method for the new Request object.
             rest_url: (str) The REST command URL, i.e. URL path after host.
+            checkstatus: (bool) If True (default) then the response status
+                of the call will be checked and an error thrown if bad.
+                Setting this to False will not automatically check the status.
             **kwargs: (any, optional) Any other arguments supported by
                 requests.request() except for url.  auth, verify, and/or
                 cert will default to values set during class initialization.
@@ -184,7 +187,7 @@ class RestClient(object):
                                     cert=cert, **kwargs)
         
         # Check for errors
-        if not response.ok:
+        if checkstatus and not response.ok:
             try:
                 print(response.json())
             except:

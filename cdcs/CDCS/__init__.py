@@ -17,7 +17,7 @@ class CDCS(RestClient):
             host: (str) URL for the database's server.
             cdcsversion: (str, optional) The version of the CDCS database
                 given as "#.#.#".  Class methods may not work properly if the
-                wrong database version is set.  Default value is "2.10.0".
+                wrong database version is set.  Default value is "2.15.0".
             username: (str, optional) Username of desired account on the
                 server.  A prompt will ask for the username if not given.
             password: (str, optional) Password of desired account on the
