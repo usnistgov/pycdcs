@@ -1,17 +1,24 @@
 # coding: utf-8
 
+# Standard library imports
+from typing import Any, Generator
+
 # https://pandas.pydata.org/
 import pandas as pd
 
-def iaslist(term):
+def iaslist(term:Any) -> Generator[Any, None, None]:
     """
     Iterate over items in term as if term was a list. Treats a str
     term as a single item.
     
-    Args:
-        term: (any) Term to iterate over.
+    Parameters
+    ----------
+    term : any
+        Term to iterate over.
     
-    Yields:
+    Yields
+    ------
+    any
         Items in the list representation of term.
     """
     if isinstance(term, (str, bytes, pd.Series)):
@@ -23,16 +30,20 @@ def iaslist(term):
         except:
             yield term
             
-def aslist(term):
+def aslist(term:Any) -> list:
     """
     Create list representation of term. Treats a str term as a single
     item.
     
-    Args:
-        term: (any) Term to convert into a list, if needed.
+    Parameters
+    ----------
+    term : any
+        Term to convert into a list, if needed.
         
-    Returns:    
-        list: All items in term as a list.
+    Returns
+    -------    
+    list
+        All items in term as a list.
     """
     return [t for t in iaslist(term)]
 
