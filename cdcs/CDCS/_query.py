@@ -1,6 +1,9 @@
 # coding: utf-8
 
 # Standard library imports
+from typing import Optional, Union
+
+# Standard library imports
 import json
 
 # https://pandas.pydata.org/
@@ -9,31 +12,44 @@ import pandas as pd
 # Local imports
 from .. import aslist
 
-def query(self, template=None, title=None, keyword=None,
-          mongoquery=None, page=None):
+def query(self, template: Union[list, str, pd.Series, pd.DataFrame, None] = None,
+          title: Optional[str] = None,
+          keyword: Union[str, list, None] = None,
+          mongoquery: Union[str, dict, None] = None,
+          page: Optional[int] = None) -> pd.DataFrame:
     """
     Search all published local data records using either keyword or mongo-style
     queries. Note: specifying no parameters will return all records in the
     database!
 
-    Arg:
-        template: (list, str, pandas.Series or pandas.DataFrame, optional)
-            One or more templates or template titles to limit the search by.
-        title: (str, optional) Record title to limit the search by.
-        keyword: (str or list, optional) Keyword(s) to use for a
-            string-based search of record content.  Only records containing
-            all keywords will be returned. keyword and mongoquery cannot both
-            be given.
-        mongoquery: (str or dict, optional) Mongodb find query to use in
-            limiting searches by record element fields.  Note: only record
-            parsing is supported, not field projection.  keyword and mongoquery
-            cannot both be given.
-        page: (int or None, optional) If an int, then will return results only
-            for that page of 10 records.  If None (default), then results for
-            all pages will be compiled and returned.
+    Parameters
+    ----------
+    template : list, str, pandas.Series or pandas.DataFrame, optional
+        One or more templates or template titles to limit the search by.
+    title : str, optional
+        Record title to limit the search by.
+    keyword : str or list, optional
+        Keyword(s) to use for a string-based search of record content.  Only
+        records containing all keywords will be returned. keyword and
+        mongoquery cannot both be given.
+    mongoquery : str or dict, optional
+        Mongodb find query to use in limiting searches by record element
+        fields.  Note: only record parsing is supported, not field projection.
+        keyword and mongoquery cannot both be given.
+    page : int or None, optional
+        If an int, then will return results only for that page of 10 records.
+        If None (default), then results for all pages will be compiled and
+        returned.
 
-    Returns:
-        pandas.DataFrame: All records matching the search request
+    Returns
+    -------
+    pandas.DataFrame
+        All records matching the search request.
+    
+    Raises
+    ------
+    ValueError
+        If query and keyword are both given.
     """  
     # Set data based on arguments
     data = {'all': 'true'} 

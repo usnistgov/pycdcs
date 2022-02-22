@@ -1,27 +1,37 @@
 # coding: utf-8
 
+# Standard library imports
+from typing import Optional
+
 # https://pandas.pydata.org/
 import pandas as pd
 
-def get_template_managers(self, title=None, is_disabled=False,
-                            useronly=False):
+def get_template_managers(self, title: Optional[str] = None,
+                          is_disabled: bool = False,
+                          useronly: bool = False) -> pd.DataFrame:
     """
-    get_template_managers: get template managers from a curator
+    Get template managers from a curator
 
-    Args:
-        title (str, optional): The template title to limit the search by.
-        is_disabled (bool, optional): If True, then disabled templates will
-            be returned.  If False (default), then active templates will be
-            returned.
-        useronly (bool, optional): If True, only a user's templates are
-            returned. If False (default), then all global templates are
-            returned.
+    Parameters
+    ----------
+    title : str, optional
+        The template title to limit the search by.
+    is_disabled : bool, optional
+        If True, then disabled templates will be returned.  If False (default),
+        then active templates will be returned.
+    useronly : bool, optional
+        If True, only a user's templates are returned. If False (default),
+        then all global templates are returned.
 
-    Returns:
-        pandas.DataFrame: All template managers.
+    Returns
+    -------
+    pandas.DataFrame
+        All template managers.
 
-    Raises:
-        TypeError: If useronly is not bool.
+    Raises
+    ------
+    TypeError
+        If useronly is not bool.
     """
     # Set url based on useronly value
     if useronly is False:
@@ -44,29 +54,36 @@ def get_template_managers(self, title=None, is_disabled=False,
     
     return template_managers
     
-def get_templates(self, title=None, is_disabled=False, current=True,
-                    useronly=False):
+def get_templates(self, title: Optional[str] = None,
+                  is_disabled: bool = False,
+                  current: bool = True,
+                  useronly: bool = False) -> pd.DataFrame:
     """
     Get all templates from a curator.
 
-    Args:
-        title (str, optional): The template title to limit the search by.
-        is_disabled (bool, optional): If True, then disabled templates will
-            be returned.  If False (default), then active templates will be
-            returned.
-        current (bool, optional): If True (default), only current template
-            versions will be returned.
-        useronly (bool, optional): If True, only a user's templates are
-            returned. If False (default), then all global templates are
-            returned.
+    Parameters
+    ----------
+    title : str, optional
+        The template title to limit the search by.
+    is_disabled : bool, optional
+        If True, then disabled templates will be returned.  If False (default),
+        then active templates will be returned.
+    current : bool, optional
+        If True (default), only current template versions will be returned.
+    useronly : bool, optional
+        If True, only a user's templates are returned. If False (default),
+        then all global templates are returned.
 
-    Returns:
-        pandas.DataFrame: All current templates.
+    Returns
+    -------
+    pandas.DataFrame
+        All current templates.
     """
 
     # Get template managers
-    template_managers = self.get_template_managers(title=title, is_disabled=is_disabled,
-                                                    useronly=useronly)      
+    template_managers = self.get_template_managers(title=title,
+                                                   is_disabled=is_disabled,
+                                                   useronly=useronly)      
     if len(template_managers) > 0:
         # Get all current templates
         if current is True:
@@ -106,27 +123,35 @@ def get_templates(self, title=None, is_disabled=False, current=True,
             
     return templates
 
-def get_template(self, title=None, is_disabled=False, current=True,
-                    useronly=False):
+def get_template(self, title: Optional[str] = None,
+                 is_disabled: bool = False,
+                 current: bool = True,
+                 useronly: bool = False) -> pd.Series:
     """
     Gets a single template from a curator.
 
-    Args:
-        title (str, optional): The template title to limit the search by.
-        is_disabled (bool, optional): If True, then disabled templates will
-            be returned.  If False (default), then active templates will be
-            returned.
-        current (bool, optional): If True (default), only current template
-            versions will be returned.
-        useronly (bool, optional): If True, only a user's templates are
-            returned. If False (default), then all global templates are
-            returned.
+    Parameters
+    ----------
+    title : str, optional
+        The template title to limit the search by.
+    is_disabled : bool, optional
+        If True, then disabled templates will be returned.  If False (default),
+        then active templates will be returned.
+    current : bool, optional
+        If True (default), only current template versions will be returned.
+    useronly : bool, optional
+        If True, only a user's templates are returned. If False (default), then
+        all global templates are returned.
 
-    Returns:
-        pandas.Series: The matching template.
+    Returns
+    -------
+    pandas.Series
+        The matching template.
 
-    Raises:
-        ValueError: If no template named title found.
+    Raises
+    ------
+    ValueError
+        If no template named title found.
     """
 
     # Get templates 
@@ -142,6 +167,6 @@ def get_template(self, title=None, is_disabled=False, current=True,
         raise ValueError('Multiple matching templates found')
 
 @property
-def template_titles(self):
+def template_titles(self) -> list:
     """list: All template titles"""
     return self.get_template_managers().title.tolist()

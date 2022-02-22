@@ -6,7 +6,7 @@ from typing import Any, Generator
 # https://pandas.pydata.org/
 import pandas as pd
 
-def iaslist(term:Any) -> Generator[Any, None, None]:
+def iaslist(term: Any) -> Generator[Any, None, None]:
     """
     Iterate over items in term as if term was a list. Treats a str
     term as a single item.
@@ -30,7 +30,7 @@ def iaslist(term:Any) -> Generator[Any, None, None]:
         except:
             yield term
             
-def aslist(term:Any) -> list:
+def aslist(term: Any) -> list:
     """
     Create list representation of term. Treats a str term as a single
     item.

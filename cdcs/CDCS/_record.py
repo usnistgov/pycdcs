@@ -2,24 +2,30 @@
 
 # Standard library imports
 from pathlib import Path
+from typing import Optional, Union
+from itsdangerous import NoneAlgorithm
 
 # https://pandas.pydata.org/
 import pandas as pd
 
 from ..aslist import aslist
 
-def get_records(self, template=None, title=None):
+def get_records(self, template: Union[str, pd.Series, None] = None,
+                title: Optional[str] = None) -> pd.DataFrame:
     """
     Retrieves user records.
 
-    Args:
-        template: (str or pandas.Series, optional) The template or template
-            title to limit the search by.
-        title: (str, optional) The data record title to limit the search
-            by.
+    Parameters
+    ----------
+    template : str or pandas.Series, optional
+        The template or template title to limit the search by.
+    title : str, optional
+        The data record title to limit the search by.
     
-    Returns:
-        pandas.DataFrame: All matching user records.
+    Returns
+    -------
+    pandas.DataFrame
+        All matching user records.
     """
     # Build params
     params = {}
@@ -49,22 +55,28 @@ def get_records(self, template=None, title=None):
     records = pd.DataFrame(records)
     return records
 
-def get_record(self, template=None, title=None):
+def get_record(self, template: Union[str, pd.Series, None] = None,
+               title: Optional[str] = None) -> pd.Series:
     """
     Retrieves a single user record.  Given parameters must uniquely
     identify a record.
 
-    Args:
-        template: (str or pandas.Series, optional) The template or template
-            title to limit the search by.
-        title: (str, optional) The data record title to limit the search
-            by.
+    Parameters
+    ----------
+    template : str or pandas.Series, optional
+        The template or template title to limit the search by.
+    title : str, optional
+        The data record title to limit the search by.
     
-    Returns:
-        pandas.Series: The matching user record.
+    Returns
+    -------
+    pandas.Series
+        The matching user record.
 
-    Raises:
-        ValueError: If no or multiple matching records found.
+    Raises
+    ------
+    ValueError
+        If no or multiple matching records found.
     """
 
     records = self.get_records(template=template, title=title)
@@ -77,27 +89,35 @@ def get_record(self, template=None, title=None):
     else:
         raise ValueError('Multiple matching records found')
 
-def assign_records(self, workspace, records=None, ids=None, template=None,
-                   title=None, verbose=False):
+def assign_records(self, workspace: Union[str, pd.Series],
+                   records: Union[pd.Series, pd.DataFrame, None] = None,
+                   ids: Union[str, list, None] = None,
+                   template: Union[str, pd.Series, None] = None,
+                   title: Optional[str] = None,
+                   verbose: bool = False):
     """
     Assigns one or more records to a workspace.
 
-    Args:
-        workspace: (str or pandas.Series) The workspace or workspace title to
-            assign the records to.
-        records: (pandas.Series or pandas.DataFrame, optional) Pre-selected
-            records to assign to the workspace.  Cannot be given with ids,
-            template, or title.
-        ids: (str or list, optional) The ID(s) of the records to assign to the
-            workspace.  Selecting records using ids has the least overhead.
-            Cannot be given with records, template, or title.
-        template: (str or pandas.Series, optional) The template or template
-            title of records to assign to the workspace.  Cannot be given with
-            records or ids.
-        title: (str, optional) The title of a record to assign to the
-            workspace. Cannot be given with records or ids.
-        verbose (bool, optional) Setting this to True will print extra
-            status messages.  Default value is False.
+    Parameters
+    ----------
+    workspace : str or pandas.Series
+        The workspace or workspace title to assign the records to.
+    records : pandas.Series or pandas.DataFrame, optional
+        Pre-selected records to assign to the workspace.  Cannot be given with
+        ids, template, or title.
+    ids : str or list, optional
+        The ID(s) of the records to assign to the workspace.  Selecting records
+        using ids has the least overhead. Cannot be given with records,
+        template, or title.
+    template : str or pandas.Series, optional
+        The template or template title of records to assign to the workspace.
+        Cannot be given with records or ids.
+    title : str, optional
+        The title of a record to assign to the workspace. Cannot be given with
+        records or ids.
+    verbose : bool, optional
+        Setting this to True will print extra status messages.  Default value
+        is False.
     """
     # Get workspace id
     if isinstance(workspace, str):
@@ -121,6 +141,9 @@ def assign_records(self, workspace, records=None, ids=None, template=None,
         else:
             raise TypeError('invalid records type')
     
+    if ids is None:
+        raise ValueError('No records specified to assign to the workspace')
+
     # Assign records to the workspace
     for record_id in aslist(ids):
         rest_url = f'/rest/data/{record_id}/assign/{workspace_id}'
@@ -129,29 +152,48 @@ def assign_records(self, workspace, records=None, ids=None, template=None,
         if verbose and response.status_code == 200:
             print(f'record {record_id} assigned to workspace {workspace_id}')
 
-def upload_record(self, template, filename=None, content=None, title=None,
-                  workspace=None, duplicatecheck=True, verbose=False):
+def upload_record(self, template: Union[str, pd.Series],
+                  filename: Optional[str] = None,
+                  content: Union[str, bytes, None] = None,
+                  title: Optional[str] = None,
+                  workspace: Union[str, pd.Series] = None,
+                  duplicatecheck: bool = True,
+                  verbose: bool = False):
     """
     Adds a data record to the curator
 
-    Args:
-        template: (str or pandas.Series) The template or template title to
-            associate with the record.
-        filename: (str, optional) Name of an XML file whose contents are to be
-            uploaded.  Either filename or content required.
-        content: (str or bytes, optional) String content to upload. Either
-            filename or content required.
-        title: (str, optional) Title to save the record as.  Optional if
-            filename is given (title will be taken as filename without ext).
-        workspace (str or pandas.Series, optional) If given, the record will be
-            assigned to this workspace after successfully being uploaded.
-        duplicatecheck: (bool, optional) If True (default), then a ValueError
-            will be raised if a record already exists in the database with the
-            same template and title.  If False, no check is performed possibly
-            allowing for multiple records with the same title to exist in the
-            database.
-        verbose: (bool, optional) Setting this to True will print extra
-            status messages.  Default value is False.
+    Parameters
+    ----------
+    template : str or pandas.Series
+        The template or template title to associate with the record.
+    filename : str, optional
+        Name of an XML file whose contents are to be uploaded.  Either filename
+        or content required.
+    content : str or bytes, optional
+        String content to upload. Either filename or content required.
+    title : str, optional
+        Title to save the record as.  Optional if filename is given (title will
+        be taken as filename without ext).
+    workspace : str or pandas.Series, optional
+        If given, the record will be assigned to this workspace after
+        successfully being uploaded.
+    duplicatecheck : bool, optional
+        If True (default), then a ValueError will be raised if a record already
+        exists in the database with the same template and title.  If False, no
+        check is performed possibly allowing for multiple records with the same
+        title to exist in the database.
+    verbose : bool, optional
+        Setting this to True will print extra status messages.  Default value
+        is False.
+
+    Raises
+    ------
+    ValueError
+        If an improper or incomplete combination of filename, content, and
+        title parameters are given, or if duplicatecheck=True and a record
+        with the same title and template exist.
+    TypeError
+        If content is not str or bytes.
     """
 
     # Fetch template by title if needed
@@ -220,28 +262,38 @@ def upload_record(self, template, filename=None, content=None, title=None,
         assign_records(self, workspace=workspace, ids=[response.json()['id']],
                        verbose=verbose)
 
-def update_record(self, record=None, template=None, title=None, filename=None,
-                  content=None, workspace=None, verbose=False):
+def update_record(self, record: Optional[pd.Series] = None,
+                  template: Union[str, pd.Series, None] = None,
+                  title: Optional[str] = None,
+                  filename: Union[str, Path, None] = None,
+                  content: Union[str, bytes, None] = None,
+                  workspace: Union[str, pd.Series, None] = None,
+                  verbose: bool = False):
     """
     Updates the content for a single data record in the curator.
 
-    Args:
-        record: (pandas.Series, optional) A previously identified record to
-            delete.  As this uniquely defines a record, the template and title
-            parameters are ignored if given.
-        template: (str or pandas.Series, optional) The template or template
-            title associated with the record.  template + title values must
-            uniquely identify one record.
-        title: (str, optional) Title of the record to delete.  template +
-            title values must uniquely identify one record.
-        filename: (str or Path, optional) Path to file containing the new
-            record content to upload. Either filename or content required.
-        content: (str or bytes, optional) New content to upload. Either
-            filename or content required.
-        workspace (str or pandas.Series, optional) If given, the record will be
-            assigned to this workspace after successfully being updated.
-        verbose: (bool, optional) Setting this to True will print extra
-            status messages.  Default value is False.
+    Parameters
+    ----------
+    record : pandas.Series, optional
+        A previously identified record to delete.  As this uniquely defines a
+        record, the template and title parameters are ignored if given.
+    template : str or pandas.Series, optional
+        The template or template title associated with the record.  template +
+        title values must uniquely identify one record.
+    title : str, optional
+        Title of the record to delete.  template + title values must uniquely
+        identify one record.
+    filename : str or Path, optional
+        Path to file containing the new record content to upload. Either
+        filename or content required.
+    content : str or bytes, optional
+        New content to upload. Either filename or content required.
+    workspace : str or pandas.Series, optional
+        If given, the record will be assigned to this workspace after
+        successfully being updated.
+    verbose : bool, optional
+        Setting this to True will print extra status messages.  Default value
+        is False.
     """
     # Load content from file
     if filename is not None:
@@ -254,10 +306,35 @@ def update_record(self, record=None, template=None, title=None, filename=None,
         if title is None:
             title = Path(filename).stem
     
+    elif content is not None:
+        
+        # Encode str as bytes if needed
+        if isinstance(content, str):
+            try:
+                e = content.index('?>')
+            except:
+                encoding = 'UTF-8'
+            else:
+                try:
+                    s = content[:e].index('encoding') + 8
+                except:
+                    encoding = 'UTF-8'
+                else:
+                    s = content[s:e].index('"')+s+1
+                    e = content[s:e].index('"') + s
+                    encoding = content[s:e]
+            content = content.encode(encoding)
+        
+        elif not isinstance(content, bytes):
+            raise TypeError('content must be str or bytes')
+        
+    else:
+        raise ValueError('filename or content must be given')
+
     # Get matching record
     if record is None:
         record = self.get_record(template=template, title=title)
-
+    
     # Set data dict
     data = {
         'xml_content': content
@@ -273,25 +350,31 @@ def update_record(self, record=None, template=None, title=None, filename=None,
         assign_records(self, workspace=workspace, ids=[record.id],
                        verbose=verbose)
 
-def delete_record(self, record=None, template=None, title=None, verbose=False):
+def delete_record(self, record: Optional[pd.Series] = None,
+                  template: Union[str, pd.Series, None] = None,
+                  title: Optional[str] = None,
+                  verbose: bool = False):
     """
     Deletes a single data record from the curator.
 
-    Args:
-        record: (pandas.Series, optional) A previously identified record to
-            delete.  As this uniquely defines a record, the other parameters
-            are ignored.
-        template: (str or pandas.Series, optional) The template or template
-            title associated with the record.  template + title values must
-            uniquely identify one record.
-        title: (str, optional) Title of the record to delete.  template +
-            title values must uniquely identify one record.
-        verbose: (bool, optional) Setting this to True will print extra
-            status messages.  Default value is False.
+    Parameters
+    ----------
+    record : pandas.Series, optional
+        A previously identified record to delete.  As this uniquely defines a
+        record, the other parameters are ignored.
+    template : str or pandas.Series, optional
+        The template or template title associated with the record.  template +
+        title values must uniquely identify one record.
+    title : str, optional
+        Title of the record to delete.  template + title values must uniquely
+        identify one record.
+    verbose : bool, optional
+        Setting this to True will print extra status messages.  Default value
+        is False.
     """
     if record is None:
         record = self.get_record(template=template, title=title)
-
+    
     rest_url = f'/rest/data/{record.id}/'
     response = self.delete(rest_url)
     

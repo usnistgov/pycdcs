@@ -1,18 +1,24 @@
 # coding: utf-8
 
+# Standard library imports
+from typing import Optional
+
 # https://pandas.pydata.org/
 import pandas as pd
 
-def get_workspaces(self, title=None):
+def get_workspaces(self, title:Optional[str]=None) -> pd.DataFrame:
     """
     Retrieves information for the existing workspaces.
 
-    Args:
-        title: (str, optional) The workspace title to limit the search
-            by.
+    Parameters
+    ----------
+    title : str, optional
+        The workspace title to limit the search by.
     
-    Returns:
-        pandas.DataFrame: The matching workspaces.
+    Returns
+    -------
+    pandas.DataFrame
+        The matching workspaces.
     """
     rest_url = '/rest/workspace/'
     response = self.get(rest_url)
@@ -23,20 +29,25 @@ def get_workspaces(self, title=None):
 
     return workspaces
 
-def get_workspace(self, title=None):
+def get_workspace(self, title:Optional[str]=None) -> pd.Series:
     """
     Retrieves a single workspace.  Given parameters must uniquely
     identify a workspace.
 
-    Args:
-        title: (str, optional) The workspace title to limit the search
-            by.
+    Parameters
+    ----------
+    title : str, optional
+        The workspace title to limit the search by.
     
-    Returns:
-        pandas.Series: The matching workspace.
+    Returns
+    -------
+    pandas.Series
+        The matching workspace.
 
-    Raises:
-        ValueError: If no or multiple matching workspaces found.
+    Raises
+    ------
+    ValueError
+        If no or multiple matching workspaces found.
     """
 
     workspaces = self.get_workspaces(title=title)
@@ -50,6 +61,6 @@ def get_workspace(self, title=None):
         raise ValueError('Multiple matching workspaces found')
 
 @property
-def global_workspace(self):
+def global_workspace(self) -> pd.Series:
     """pandas.Series: The global public workspace"""
     return self.get_workspace(title='Global Public Workspace')

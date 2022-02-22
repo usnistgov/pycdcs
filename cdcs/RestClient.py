@@ -17,11 +17,13 @@ class RestClient(object):
     """
     Generic class for building REST calls to web databases in Python.
     """
-    def __init__(self, host:str, username:Optional[str]=None,
-                 password:Optional[str]=None, auth:Optional[Tuple[str]]=None,
-                 cert:Union[str, Tuple[str], None]=None, 
-                 certification:Union[str, Tuple[str], None]=None,
-                 verify:Optional[bool]=True):
+    def __init__(self, host: str,
+                 username: Optional[str] = None,
+                 password: Optional[str] = None,
+                 auth: Optional[Tuple[str]] = None,
+                 cert: Union[str, Tuple[str], None] = None, 
+                 certification: Union[str, Tuple[str], None] = None,
+                 verify: Optional[bool] = True):
         """
         Class initializer. Tests and stores access information.
         
@@ -77,11 +79,13 @@ class RestClient(object):
         """bool: The verify setting for the database."""
         return self.__verify
 
-    def login(self, host:str, username:Optional[str]=None,
-              password:Optional[str]=None, auth:Optional[Tuple[str]]=None,
-              cert:Union[str, Tuple[str], None]=None, 
-              certification:Union[str, Tuple[str], None]=None,
-              verify:Optional[bool]=True):
+    def login(self, host: str,
+              username: Optional[str] = None,
+              password: Optional[str] = None, 
+              auth: Optional[Tuple[str]] = None,
+              cert: Union[str, Tuple[str], None] = None, 
+              certification: Union[str, Tuple[str], None] = None,
+              verify: Optional[bool] = True):
         """
         Tests and stores access information.
         
@@ -168,7 +172,9 @@ class RestClient(object):
         # Default behavior is no test: must be set specific to database type
         pass
 
-    def request(self, method:str, rest_url:str, checkstatus:bool=True,
+    def request(self, method: str,
+                rest_url: str,
+                checkstatus: bool = True,
                 **kwargs) -> requests.Response:
         """
         Wrapper around requests.request that automatically sets any access
@@ -221,7 +227,8 @@ class RestClient(object):
         
         return response
     
-    def head(self, rest_url:str, **kwargs) -> requests.Response:
+    def head(self, rest_url: str,
+             **kwargs) -> requests.Response:
         """
         Wrapper around requests.head that automatically sets any access
         parameters based on the stored login information.
@@ -251,7 +258,8 @@ class RestClient(object):
             
         return self.request('head', rest_url, **kwargs)
     
-    def get(self, rest_url:str, **kwargs) -> requests.Response:
+    def get(self, rest_url: str,
+            **kwargs) -> requests.Response:
         """
         Wrapper around requests.get that automatically sets any access
         parameters based on the stored login information.
@@ -277,7 +285,8 @@ class RestClient(object):
         """
         return self.request('get', rest_url, **kwargs)
         
-    def post(self, rest_url:str, data:Union[dict, bytes, None]=None,
+    def post(self, rest_url: str,
+             data: Union[dict, bytes, None] = None,
              **kwargs) -> requests.Response:
         """
         Wrapper around requests.post that automatically sets any access
@@ -306,7 +315,8 @@ class RestClient(object):
         """
         return self.request('post', rest_url, data=data, **kwargs)
     
-    def put(self, rest_url:str, data:Union[dict, bytes, None]=None,
+    def put(self, rest_url: str,
+            data: Union[dict, bytes, None] = None,
             **kwargs) -> requests.Response:
         """
         Wrapper around requests.put that automatically sets any access
@@ -335,7 +345,8 @@ class RestClient(object):
         """
         return self.request('put', rest_url, data=data, **kwargs)
     
-    def patch(self, rest_url:str, data:Union[dict, bytes, None]=None,
+    def patch(self, rest_url: str,
+              data: Union[dict, bytes, None] = None,
               **kwargs) -> requests.Response:
         """
         Wrapper around requests.patch that automatically sets any access
@@ -364,7 +375,8 @@ class RestClient(object):
         """
         return self.request('patch', rest_url, data=data, **kwargs)
     
-    def delete(self, rest_url:str, **kwargs) -> requests.Response:
+    def delete(self, rest_url: str,
+               **kwargs) -> requests.Response:
         """
         Wrapper around requests.delete that automatically sets any access
         parameters based on the stored login information.
