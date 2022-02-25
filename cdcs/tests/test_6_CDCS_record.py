@@ -221,7 +221,7 @@ class TestCDCS():
                                     content=23746)
 
     @responses.activate
-    def test_delete_record(self, tmpdir):
+    def test_delete_record(self):
         """Tests delete_record()"""
 
         # Add Mock responses
