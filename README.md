@@ -10,13 +10,16 @@ This is a base Python package for accessing instances of the NIST Configurable D
 
 The package can be installed using pip:
 
-    pip install pycdcs
+    pip install cdcs
 
 or conda (comming soon):
 
-    conda install -c conda-forge pycdcs
+    conda install -c conda-forge cdcs
 
-Alternatively, the source code can be downloaded from github at [https://github.com/lmhale99/pycdcs](https://github.com/lmhale99/pycdcs)
+Alternatively, the source code can be downloaded from github at
+
+- Stable releases: [https://github.com/usnistgov/pycdcs](https://github.com/usnistgov/pycdcs)
+- In development: [https://github.com/lmhale99/pycdcs](https://github.com/lmhale99/pycdcs)
 
 ## Documentation
 
