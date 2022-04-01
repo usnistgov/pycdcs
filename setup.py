@@ -38,7 +38,6 @@ setup(name = 'cdcs',
       packages = find_packages(),
       install_requires = [
         'requests',
-        'numpy', 
         'pandas'
       ],
       package_data={'': ['*']},
