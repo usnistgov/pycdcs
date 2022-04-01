@@ -3,7 +3,6 @@
 # Standard library imports
 from pathlib import Path
 from typing import Optional, Union
-from itsdangerous import NoneAlgorithm
 
 # https://pandas.pydata.org/
 import pandas as pd
