@@ -73,13 +73,15 @@ class CDCS(RestClient):
     from ._template import (get_template_managers, get_templates, get_template,
                             template_titles)
 
-    from ._query import query
+    from ._query import query, query_count
     
     from ._record import (get_records, get_record, upload_record, assign_records,
                           update_record, delete_record)
 
     from ._blob import (get_blobs, get_blob, upload_blob, delete_blob, assign_blobs,
                         get_blob_contents, download_blob)
+    from ._pid_xpath import (get_pid_xpaths, get_pid_xpath, upload_pid_xpath,
+                             update_pid_xpath, delete_pid_xpath)
     
     @property
     def cdcsversion(self) -> str:
