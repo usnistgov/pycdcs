@@ -8,7 +8,8 @@ from typing import Optional, Union
 # https://pandas.pydata.org/
 import pandas as pd
 
-from ..aslist import aslist
+# Local imports
+from .. import aslist, date_parser
 
 def upload_blob(self, filename: Union[str, Path],
                 blobbytes: Optional[io.BytesIO] = None,
@@ -60,7 +61,9 @@ def upload_blob(self, filename: Union[str, Path],
 
     return blob.handle
     
-def get_blobs(self, filename: Optional[str] = None) -> pd.DataFrame:
+def get_blobs(self,
+              filename: Optional[str] = None,
+              parse_dates: bool = True) -> pd.DataFrame:
     """
     Retrieves the metadata for blobs
     
@@ -68,7 +71,10 @@ def get_blobs(self, filename: Optional[str] = None) -> pd.DataFrame:
     ----------
     filename : str, optional
         The name of the file to limit the search by.
-    
+    parse_dates : bool, optional
+        If True (default) then date fields will automatically be parsed into
+        pandas.Timestamp objects.  If False they will be left as str values.
+
     Returns
     -------
     pandas.DataFrame
@@ -84,10 +90,17 @@ def get_blobs(self, filename: Optional[str] = None) -> pd.DataFrame:
     rest_url = '/rest/blob/'
     response = self.get(rest_url, params=params)
     
-    return pd.DataFrame(response.json())
+    blobs = pd.DataFrame(response.json())
 
-def get_blob(self, id: Optional[str] = None,
-             filename: Optional[str] = None) -> pd.Series:
+    if parse_dates:
+        blobs.upload_date = blobs.apply(date_parser, args=['upload_date'], axis=1)
+
+    return blobs
+
+def get_blob(self,
+             id: Optional[str] = None,
+             filename: Optional[str] = None,
+             parse_dates: bool = True) -> pd.Series:
     """
     Retrieves the metadata for a single blob.  The blob can be uniquely
     identified using its id or filename.
@@ -98,7 +111,10 @@ def get_blob(self, id: Optional[str] = None,
         The unique ID associated with the blob.
     filename : str, optional
         The name of the file to limit the search by.
-    
+    parse_dates : bool, optional
+        If True (default) then date fields will automatically be parsed into
+        pandas.Timestamp objects.  If False they will be left as str values.
+
     Returns
     -------
     pandas.Series
@@ -111,7 +127,7 @@ def get_blob(self, id: Optional[str] = None,
         found.
     """
     if id is None:
-        blobs = self.get_blobs(filename=filename)
+        blobs = self.get_blobs(filename=filename, parse_dates=parse_dates)
         
         if len(blobs) == 1:
             return blobs.iloc[0]
@@ -124,7 +140,12 @@ def get_blob(self, id: Optional[str] = None,
             raise ValueError('id and filename cannot both be given')
         rest_url = f'/rest/blob/{id}'
         response = self.get(rest_url)
-        return pd.Series(response.json())
+        blob = pd.Series(response.json())
+
+        if parse_dates:
+            blob.upload_date = date_parser(blob, 'upload_date')
+
+        return blob
 
 def assign_blobs(self, workspace: Union[str, pd.Series],
                  blobs: Union[pd.Series, pd.DataFrame, None] = None,

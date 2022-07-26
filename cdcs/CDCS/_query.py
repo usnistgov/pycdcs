@@ -11,13 +11,14 @@ import json
 import pandas as pd
 
 # Local imports
-from .. import aslist
+from .. import aslist, date_parser
 
 def query(self, template: Union[list, str, pd.Series, pd.DataFrame, None] = None,
           title: Optional[str] = None,
           keyword: Union[str, list, None] = None,
           mongoquery: Union[str, dict, None] = None,
-          page: Optional[int] = None) -> pd.DataFrame:
+          page: Optional[int] = None,
+          parse_dates: bool = True) -> pd.DataFrame:
     """
     Search all published local data records using either keyword or mongo-style
     queries. Note: specifying no parameters will return all records in the
@@ -41,6 +42,9 @@ def query(self, template: Union[list, str, pd.Series, pd.DataFrame, None] = None
         If an int, then will return results only for that page of 10 records.
         If None (default), then results for all pages will be compiled and
         returned.
+    parse_dates : bool, optional
+        If True (default) then date fields will automatically be parsed into
+        pandas.Timestamp objects.  If False they will be left as str values.
 
     Returns
     -------
@@ -130,6 +134,11 @@ def query(self, template: Union[list, str, pd.Series, pd.DataFrame, None] = None
     if len(records) > 0:
         records['template_title'] = records.apply(set_template_titles, args=[templates], axis=1)
 
+    # Parse date fields
+    if parse_dates:
+        for key in ['creation_date', 'last_modification_date', 'last_change_date']:
+            records[key] = records.apply(date_parser, args=[key], axis=1)
+    
     return records
 
 def query_count(self,

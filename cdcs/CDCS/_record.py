@@ -7,10 +7,11 @@ from typing import Optional, Union
 # https://pandas.pydata.org/
 import pandas as pd
 
-from ..aslist import aslist
+from .. import aslist, date_parser
 
 def get_records(self, template: Union[str, pd.Series, None] = None,
-                title: Optional[str] = None) -> pd.DataFrame:
+                title: Optional[str] = None,
+                parse_dates: bool = True) -> pd.DataFrame:
     """
     Retrieves user records.
 
@@ -20,6 +21,9 @@ def get_records(self, template: Union[str, pd.Series, None] = None,
         The template or template title to limit the search by.
     title : str, optional
         The data record title to limit the search by.
+    parse_dates : bool, optional
+        If True (default) then date fields will automatically be parsed into
+        pandas.Timestamp objects.  If False they will be left as str values.
     
     Returns
     -------
@@ -52,10 +56,17 @@ def get_records(self, template: Union[str, pd.Series, None] = None,
     response = self.get(rest_url, params=params)
     records = response.json()
     records = pd.DataFrame(records)
+    
+    # Parse date fields
+    if parse_dates:
+        for key in ['creation_date', 'last_modification_date', 'last_change_date']:
+            records[key] = records.apply(date_parser, args=[key], axis=1)
+    
     return records
 
 def get_record(self, template: Union[str, pd.Series, None] = None,
-               title: Optional[str] = None) -> pd.Series:
+               title: Optional[str] = None,
+               parse_dates: bool = True) -> pd.Series:
     """
     Retrieves a single user record.  Given parameters must uniquely
     identify a record.
@@ -66,7 +77,10 @@ def get_record(self, template: Union[str, pd.Series, None] = None,
         The template or template title to limit the search by.
     title : str, optional
         The data record title to limit the search by.
-    
+    parse_dates : bool, optional
+        If True (default) then date fields will automatically be parsed into
+        pandas.Timestamp objects.  If False they will be left as str values.
+        
     Returns
     -------
     pandas.Series
@@ -78,7 +92,8 @@ def get_record(self, template: Union[str, pd.Series, None] = None,
         If no or multiple matching records found.
     """
 
-    records = self.get_records(template=template, title=title)
+    records = self.get_records(template=template, title=title,
+                               parse_dates=parse_dates)
     
     # Check that number of records is exactly one.
     if len(records) == 1:

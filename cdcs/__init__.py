@@ -11,6 +11,7 @@ else:
 
 
 # Local imports
+from .date_parser import date_parser
 from .aslist import aslist, iaslist
 from .RestClient import RestClient
 from .CDCS import CDCS
