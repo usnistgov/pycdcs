@@ -11,6 +11,8 @@ import pandas as pd
 # Local imports
 from .. import aslist, date_parser
 
+blob_keys = ['id', ',user_id', 'filename', 'handle', 'upload_date', 'pid']
+
 def upload_blob(self, filename: Union[str, Path],
                 blobbytes: Optional[io.BytesIO] = None,
                 workspace: Union[str, pd.Series, None] = None,
@@ -91,8 +93,10 @@ def get_blobs(self,
     response = self.get(rest_url, params=params)
     
     blobs = pd.DataFrame(response.json())
+    if len(blobs) == 0:
+        blobs = pd.DataFrame(columns=blob_keys)
 
-    if parse_dates:
+    if parse_dates and len(blobs) > 0:
         blobs.upload_date = blobs.apply(date_parser, args=['upload_date'], axis=1)
 
     return blobs

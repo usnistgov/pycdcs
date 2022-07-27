@@ -9,6 +9,9 @@ import pandas as pd
 
 from .. import aslist, date_parser
 
+record_keys = ['id', 'template', 'workspace', 'user_id', 'title', 'xml_content',
+               'creation_date', 'last_modification_date', 'last_change_date']
+
 def get_records(self, template: Union[str, pd.Series, None] = None,
                 title: Optional[str] = None,
                 parse_dates: bool = True) -> pd.DataFrame:
@@ -35,18 +38,16 @@ def get_records(self, template: Union[str, pd.Series, None] = None,
 
     # Manage template
     if template is not None:
-        #params['templates'] = []
+        
         # Handle template series
         if isinstance(template, pd.Series):
             params['template'] = template.id
-            #params['templates'].append({"id":template.id})
-        
+            
         # Handle template titles
         else:
             template = self.get_template(title=template)
             params['template'] = template.id
-            #params['templates'].append({"id":template.id})
-    
+            
     # Manage title
     if title is not None:
         params['title'] = title
@@ -56,9 +57,11 @@ def get_records(self, template: Union[str, pd.Series, None] = None,
     response = self.get(rest_url, params=params)
     records = response.json()
     records = pd.DataFrame(records)
+    if len(records) == 0:
+        records = pd.DataFrame(columns=record_keys)
     
     # Parse date fields
-    if parse_dates:
+    if parse_dates and len(records) > 0:
         for key in ['creation_date', 'last_modification_date', 'last_change_date']:
             records[key] = records.apply(date_parser, args=[key], axis=1)
     

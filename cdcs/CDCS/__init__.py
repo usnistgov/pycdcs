@@ -91,7 +91,7 @@ class CDCS(RestClient):
     def testcall(self):
         """Simple rest call to check if authentication parameters are valid."""
         
-        # Call /rest/data/ and parse by a non-existant title
+        # Call /rest/data/ and parse by a non-existent title
         rest_url = '/rest/data/'
         params = {'title':'ARBITRARYNONEXISTANTTITLE'}
         self.get(rest_url, params=params)

@@ -13,6 +13,10 @@ import pandas as pd
 # Local imports
 from .. import aslist, date_parser
 
+query_keys = ['id', 'template', 'workspace', 'user_id', 'title', 'xml_content',
+              'creation_date', 'last_modification_date', 'last_change_date',
+              'template_title']
+
 def query(self, template: Union[list, str, pd.Series, pd.DataFrame, None] = None,
           title: Optional[str] = None,
           keyword: Union[str, list, None] = None,
@@ -128,6 +132,10 @@ def query(self, template: Union[list, str, pd.Series, pd.DataFrame, None] = None
         response_json = response.json()
         records = pd.DataFrame(response_json['results'])
 
+    if len(records) == 0:
+        if len(records) == 0:
+            records = pd.DataFrame(columns=query_keys)
+
     # Set template titles
     def set_template_titles(series, templates):
         return templates[templates.id == series.template].iloc[0].title
@@ -135,7 +143,7 @@ def query(self, template: Union[list, str, pd.Series, pd.DataFrame, None] = None
         records['template_title'] = records.apply(set_template_titles, args=[templates], axis=1)
 
     # Parse date fields
-    if parse_dates:
+    if parse_dates and len(records) > 0:
         for key in ['creation_date', 'last_modification_date', 'last_change_date']:
             records[key] = records.apply(date_parser, args=[key], axis=1)
     
