@@ -70,18 +70,23 @@ class CDCS(RestClient):
     from ._workspace import (get_workspaces, get_workspace,
                              global_workspace)
     
-    from ._template import (get_template_managers, get_templates, get_template,
-                            template_titles)
+    from ._template import (get_template_managers, disable_template_manager,
+                            restore_template_manager, get_templates, get_template,
+                            template_titles, upload_template, update_template,
+                            disable_template, restore_template, set_current_template)
 
     from ._query import query, query_count
     
     from ._record import (get_records, get_record, upload_record, assign_records,
-                          update_record, delete_record)
+                          update_record, delete_record, transform_record)
 
     from ._blob import (get_blobs, get_blob, upload_blob, delete_blob, assign_blobs,
                         get_blob_contents, download_blob)
+
     from ._pid_xpath import (get_pid_xpaths, get_pid_xpath, upload_pid_xpath,
                              update_pid_xpath, delete_pid_xpath)
+    
+    from ._xslt import (get_xslts, get_xslt, upload_xslt, update_xslt, delete_xslt)
     
     @property
     def cdcsversion(self) -> str:

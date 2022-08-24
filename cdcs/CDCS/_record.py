@@ -4,6 +4,8 @@
 from pathlib import Path
 from typing import Optional, Union
 
+from IPython.core.display import display, HTML
+
 # https://pandas.pydata.org/
 import pandas as pd
 
@@ -397,3 +399,128 @@ def delete_record(self, record: Optional[pd.Series] = None,
     
     if verbose and response.status_code == 204:
         print(f'record {record.title} ({record.id}) has been deleted.')
+
+def transform_record(self,
+                     record: Optional[pd.Series] = None,
+                     record_template: Optional[str] = None,
+                     record_title: Optional[str] = None,
+                     record_content: Union[str, bytes, None] = None,
+                     record_filename: Union[str, Path, None] = None,
+                     xslt: Optional[pd.Series] = None,
+                     xslt_name: Optional[str] = None,
+                     render_html: bool = False):
+    """
+    Transforms an XML record using an XSLT in the curator.  Note that this
+    transformation is done by the curator and therefore involves at least one
+    web request.  If the XML and XSLT files are local then it is likely more
+    efficient to transform them locally (e.g. use lxml).
+    
+    Parameters
+    ----------
+    record : pandas.Series, optional
+        The record information as retrieved from get_record(s) or query. Cannot
+        be given with any other record parameter.
+    record_template : str, optional
+        The template title for a record to retrieve from the curator to render.
+        The values of record_template and record_name together must uniquely 
+        identify a record.  Cannot be given with record, record_content or
+        record_filename.
+    record_title : str, optional
+        The record title for a record to retrieve from the curator to render.
+        The values of record_template and record_name together must uniquely 
+        identify a record.  Cannot be given with record, record_content or
+        record_filename.
+    record_content : str or bytes, optional
+        Allows for XML content to be directly passed in.  Cannot be given with
+        any other record parameter.
+    record_filename : pathlike-object, optional
+        Allows for XML content to be loaded from a local file. Cannot be given
+        with any other record parameter.
+    xslt : pandas.Series, optional
+        The xslt information as retrieved from get_xslt(s).  Cannot be given
+        with any other xslt parameter.
+    xslt_name : str, optional
+        The name associated with an xslt entry in the database.
+    render_html : bool, optional
+        If True, will use ipython's display options to render the transformed
+        content as HTML.  This can be useful for ipython environments, such as
+        Jupyter.  The default value of False will return the transformed
+        contents as a str.
+
+    Returns
+    -------
+    str
+        The XML record contents as transformed by the XSLT.  Only returned when
+        render_html=False.
+    """
+    
+    # Extract record content from a record series
+    if record is not None:
+        try:
+            assert record_template is None
+            assert record_title is None
+            assert record_content is None
+            assert record_filename is None
+        except AssertionError:
+            raise ValueError('record cannot be given with any other record parameters')
+
+        record_content = record.xml_content
+
+    # Load record content from file
+    elif record_filename is not None:
+        if record_content is not None:
+            raise ValueError('record_filename and record_content cannot both be given')
+        if record_title is not None or record_template is not None:
+            raise ValueError('record_filename cannot be given with record_title or record_template')
+        
+        with open(record_filename, 'rb') as xmlfile:
+            record_content = xmlfile.read()
+    
+    # Convert record_content to str if needed
+    elif record_content is not None:
+        if record_title is not None or record_template is not None:
+            raise ValueError('record_content cannot be given with record_title or record_template')
+        
+        # Encode str as bytes if needed
+        if isinstance(record_content, str):
+            try:
+                e = record_content.index('?>')
+            except:
+                encoding = 'UTF-8'
+            else:
+                try:
+                    s = record_content[:e].index('encoding') + 8
+                except:
+                    encoding = 'UTF-8'
+                else:
+                    s = record_content[s:e].index('"')+s+1
+                    e = record_content[s:e].index('"') + s
+                    encoding = record_content[s:e]
+            record_content = record_content.encode(encoding)
+        
+        elif not isinstance(record_content, bytes):
+            raise TypeError('record_content must be str or bytes')
+
+    # Fetch record from curator
+    else:
+        record = self.get_record(title=record_title, template=record_template)
+        record_content = record.xml_content
+
+    # Extract xslt name from series
+    if xslt is not None:
+        if xslt_name is not None:
+            raise ValueError('xslt and xslt_name cannot both be given')
+    elif xslt_name is None:
+        raise ValueError('xslt or xslt_name must be given')
+
+    data = {}
+    data['xslt_name'] = xslt_name
+    data['xml_content'] = record_content
+
+    rest_url = '/rest/xslt/transform/'
+    response = self.post(rest_url, data=data)
+    
+    if render_html:
+        display(HTML(response.text))
+    else:
+        return response.text
