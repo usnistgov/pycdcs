@@ -2,7 +2,7 @@
 
 # Standard library imports
 from typing import Optional, Union
-from math import ceil
+from tqdm import tqdm
 
 # Standard library imports
 import json
@@ -17,12 +17,14 @@ query_keys = ['id', 'template', 'workspace', 'user_id', 'title', 'xml_content',
               'creation_date', 'last_modification_date', 'last_change_date',
               'template_title']
 
-def query(self, template: Union[list, str, pd.Series, pd.DataFrame, None] = None,
+def query(self,
+          template: Union[list, str, pd.Series, pd.DataFrame, None] = None,
           title: Optional[str] = None,
           keyword: Union[str, list, None] = None,
           mongoquery: Union[str, dict, None] = None,
           page: Optional[int] = None,
-          parse_dates: bool = True) -> pd.DataFrame:
+          parse_dates: bool = True,
+          progress_bar: bool = True) -> pd.DataFrame:
     """
     Search all published local data records using either keyword or mongo-style
     queries. Note: specifying no parameters will return all records in the
@@ -49,7 +51,9 @@ def query(self, template: Union[list, str, pd.Series, pd.DataFrame, None] = None
     parse_dates : bool, optional
         If True (default) then date fields will automatically be parsed into
         pandas.Timestamp objects.  If False they will be left as str values.
-
+    progress_bar : bool, optional
+        If True (default) a progress bar will be displayed for multi-page
+        query results.
     Returns
     -------
     pandas.DataFrame
@@ -98,7 +102,7 @@ def query(self, template: Union[list, str, pd.Series, pd.DataFrame, None] = None
                 
                 data['templates'].append({"id":t.id})
                 templates.append(t)
-            templates = pd.DataFrame(templates)    
+            templates = pd.DataFrame(templates)
                     
         data['templates'] = json.dumps(data['templates'])
     else:
@@ -116,14 +120,28 @@ def query(self, template: Union[list, str, pd.Series, pd.DataFrame, None] = None
         response_json = response.json()
         records = response_json['results']
 
-        # Repeat post until all content received
-        params = {'page':2}
-        while response_json['next'] is not None:
-            response = self.post(rest_url, params=params, data=data)
-            response_json = response.json()
-            records.extend(response_json['results'])
-            params['page'] += 1
-        assert len(records) == response_json['count']
+        if len(records) < response_json['count']:
+            
+            if progress_bar:
+                pbar = tqdm(total=response_json['count'], initial=len(records))
+            
+            # Repeat post until all content received
+            params = {'page':2}
+            while response_json['next'] is not None:
+                response = self.post(rest_url, params=params, data=data)
+                response_json = response.json()
+                newrecords = response_json['results']
+                records.extend(newrecords)
+                params['page'] += 1
+
+                if progress_bar:
+                    pbar.update(len(newrecords))
+            
+            if progress_bar:
+                pbar.close()
+
+            assert len(records) == response_json['count']
+        
         records = pd.DataFrame(records)
 
     else:
