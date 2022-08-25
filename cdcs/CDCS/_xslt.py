@@ -14,19 +14,19 @@ def get_xslts(self,
               name: Optional[str] = None,
               filename: Optional[str] = None) -> pd.DataFrame:
     """
-    Retrieves xslts.
+    Retrieves XSLTs.
 
     Parameters
     ----------
     name : str, optional
-        The xslt name to limit the search by.
+        The XSLT name to limit the search by.
     filename : str, optional
-        The xslt filename to limit the search by.
+        The XSLT filename to limit the search by.
         
     Returns
     -------
     pandas.DataFrame
-        All matching xslts.
+        All matching XSLTs.
     """
     rest_url = '/rest/xslt/'
 
@@ -47,25 +47,25 @@ def get_xslt(self,
              name: Optional[str] = None,
              filename: Optional[str] = None) -> pd.Series:
     """
-    Retrieves a single xslt.  Given parameters must uniquely
-    identify an xslt.
+    Retrieves a single XSLT.  Given parameters must uniquely
+    identify an XSLT.
 
     Parameters
     ----------
     name : str, optional
-        The xslt name to limit the search by.
+        The XSLT name to limit the search by.
     filename : str, optional
-        The xslt filename to limit the search by.
+        The XSLT filename to limit the search by.
 
     Returns
     -------
     pandas.Series
-        The matching xslt.
+        The matching XSLT.
 
     Raises
     ------
     ValueError
-        If no or multiple matching xslts found.
+        If no or multiple matching XSLTs found.
     """
 
     xslts = self.get_xslts(name=name, filename=filename)
@@ -84,6 +84,23 @@ def upload_xslt(self,
                 content: Union[str, bytes, None] = None,
                 verbose: bool = False):
     """
+    Adds a new XSLT file to the CDCS database.
+
+    Parameters
+    ----------
+    name : str, optional
+        The name to associate with the XSLT file.  Optional if filename is
+        given as name will be taken as filename without its extension.
+    filename : str, optional
+        The filename to associate with the XSLT file.  Optional if name and
+        content are given.  If not given, filename will be set to name + '.xsl'.
+        Will read the file contents if the file exists and content is not given.
+    content : str or bytes, optional
+        XSLT file contents.  Optional if filename is given and points to a file
+        that exists.
+    verbose : bool, optional
+        Setting this to True will print extra status messages.  Default value
+        is False.
     """
     # Check if filename has been given
     if filename is not None:
@@ -160,7 +177,7 @@ def update_xslt(self,
     Parameters
     ----------
     name : str, optional
-        An xslt name. Will be used to identify the existing xslt entry to update if
+        An XSLT name. Will be used to identify the existing xslt entry to update if
         neither xslt nor xslt_id parameters are given. If either xslt or xslt_id are
         given, this can be used to assign a new name to the entry.
     filename : str, optional
@@ -174,9 +191,9 @@ def update_xslt(self,
     newfilename : str, optional
         New filename to assign to the entry.
     xslt : pd.Series, optional
-        The xslt entry information for the entry that is being updated.  
+        The XSLT entry information for the entry that is being updated.  
     xslt_id : str, optional
-        The database id that uniquely identifies the xslt entry. 
+        The database id that uniquely identifies the XSLT entry. 
     verbose : bool, optional
         Setting this to True will print extra status messages.  Default value
         is False.
@@ -248,6 +265,29 @@ def delete_xslt(self,
                 xslt: Optional[pd.Series] = None,
                 xslt_id: Optional[str] = None,
                 verbose: bool = False):
+    """
+    Deletes an XSLT file from the database.
+
+    Parameters
+    ----------
+    name : str, optional
+        Values for name and filename can be specified to try to uniquely
+        identify the XSLT entry to delete.  Cannot be combined with xslt or
+        xslt_id as they uniquely identify the XSLT on their own.
+    filename : str, optional
+        Values for name and filename can be specified to try to uniquely
+        identify the XSLT entry to delete.  Cannot be combined with xslt or
+        xslt_id as they uniquely identify the XSLT on their own.
+    xslt : pd.Series, optional
+        The xslt entry information for the entry that is to be deleted.  
+        Cannot be combined with name, filename or xslt_id.
+    xslt_id : str, optional
+        The database id that uniquely identifies the xslt entry to delete. 
+        Cannot be combined with name, filename or xslt.
+    verbose : bool, optional
+        Setting this to True will print extra status messages.  Default value
+        is False.
+    """
 
     # Get xslt_id from xslt
     if xslt is not None:

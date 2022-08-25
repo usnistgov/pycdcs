@@ -69,6 +69,9 @@ def disable_template_manager(self,
     template_manager : pandas.Series, optional
         Template manager information for the template.  This can be given instead
         of title to avoid querying for the template manager.
+    verbose : bool, optional
+        Setting this to True will print extra status messages.  Default value
+        is False.
     """
     
     if title is not None:
@@ -106,6 +109,9 @@ def restore_template_manager(self,
     template_manager : pandas.Series, optional
         Template manager information for the template.  This can be given instead
         of title to avoid querying for the template manager.
+    verbose : bool, optional
+        Setting this to True will print extra status messages.  Default value
+        is False.
     """
     
     if title is not None:
@@ -385,11 +391,11 @@ def update_template(self,
     template_manager : pandas.Series, optional
         Can be given instead of title if the template_manager info has already been
         retrieved from the database.
-    validate : bool, optional
-        If True, all records in the current active version of the template will be validated against
+    validate : bool, optional 
+        NOT IMPLEMENTED YET! If True, all records in the current active version of the template will be validated against
         the newly uploaded version to determine if migration is possible. Default value is False.
     migrate : bool, optional
-        If True, will attempt to migrate all records in the current active version to the newly
+        NOT IMPLEMENTED YET! If True, will attempt to migrate all records in the current active version to the newly
         uploaded version.  Default value is False.
     set_current : bool, optional
         If True (default), will set the uploaded version of the template to be the current
@@ -517,6 +523,9 @@ def disable_template(self,
     template_id : str, optional
         The database id for the template to disable.  If given, then no other
         parameters are allowed (or needed).
+    verbose : bool, optional
+        Setting this to True will print extra status messages.  Default value
+        is False.
     """
     
     # Check if template_id is given with any other parameters
@@ -583,6 +592,9 @@ def restore_template(self,
     template_id : str, optional
         The database id for the template to restore.  If given, then no other
         parameters are allowed (or needed).
+    verbose : bool, optional
+        Setting this to True will print extra status messages.  Default value
+        is False.
     """
     
     # Check if template_id is given with any other parameters
@@ -646,6 +658,9 @@ def set_current_template(self,
     template_id : str, optional
         The database id for the template to set as current.  If given, then no other
         parameters are allowed (or needed).
+    verbose : bool, optional
+        Setting this to True will print extra status messages.  Default value
+        is False.
     """
     
     # Check if template_id is given with any other parameters
