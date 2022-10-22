@@ -37,6 +37,7 @@ setup(name = 'cdcs',
       author_email = 'lucas.hale@nist.gov',
       packages = find_packages(),
       install_requires = [
+        'ipython',
         'requests',
         'pandas'
       ],
