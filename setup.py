@@ -38,7 +38,8 @@ setup(name = 'cdcs',
       packages = find_packages(),
       install_requires = [
         'requests',
-        'pandas'
+        'pandas',
+        'tqdm',
       ],
       package_data={'': ['*']},
       zip_safe = False)
