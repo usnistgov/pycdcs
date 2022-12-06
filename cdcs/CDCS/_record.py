@@ -4,6 +4,8 @@
 from pathlib import Path
 from typing import Optional, Union
 
+from tqdm import tqdm
+
 from IPython.core.display import display, HTML
 
 # https://pandas.pydata.org/
@@ -16,9 +18,112 @@ record_keys = ['id', 'template', 'workspace', 'user_id', 'title', 'xml_content',
 
 def get_records(self, template: Union[str, pd.Series, None] = None,
                 title: Optional[str] = None,
-                parse_dates: bool = True) -> pd.DataFrame:
+                page: Optional[int] = None,
+                parse_dates: bool = True,
+                progress_bar: bool = True) -> pd.DataFrame:
     """
-    Retrieves user records.
+    Retrieves user records for a CDCS version 2.X.X database.
+
+    Parameters
+    ----------
+    template : str or pandas.Series, optional
+        The template or template title to limit the search by.
+    title : str, optional
+        The data record title to limit the search by.
+    page : int or None, optional
+        If an int, then will return results only for that page of 10 records.
+        If None (default), then results for all pages will be compiled and
+        returned.  Only used for CDCS versions >= 3. 
+    parse_dates : bool, optional
+        If True (default) then date fields will automatically be parsed into
+        pandas.Timestamp objects.  If False they will be left as str values.
+    progress_bar : bool, optional
+        If True (default) a progress bar will be displayed for multi-page
+        query results. Only used for CDCS versions >= 3. 
+
+    Returns
+    -------
+    pandas.DataFrame
+        All matching user records.
+    """
+
+    # Use old method for CDCS 2.X.X
+    if self.cdcsversion[0] == 2:
+        return self.get_records_v2(template=template, title=title,
+        parse_dates=parse_dates)
+
+    # Build params
+    params = {}
+
+    # Manage template
+    if template is not None:
+        
+        # Handle template series
+        if isinstance(template, pd.Series):
+            params['template'] = template.id
+            
+        # Handle template titles
+        else:
+            template = self.get_template(title=template)
+            params['template'] = template.id
+            
+    # Manage title
+    if title is not None:
+        params['title'] = title
+
+    rest_url = '/rest/data/'
+
+    # Get results from all pages
+    if page is None:
+        response = self.get(rest_url, params=params)
+        response_json = response.json()
+        records = response_json['results']
+        
+        if len(records) < response_json['count']:
+
+            if progress_bar:
+                pbar = tqdm(total=response_json['count'], initial=len(records))
+        
+            # Repeat post until all content received
+            params['page'] = 2
+            while response_json['next'] is not None:
+                response = self.post(rest_url, params=params)
+                response_json = response.json()
+                newrecords = response_json['results']
+                records.extend(newrecords)
+                params['page'] += 1
+
+                if progress_bar:
+                    pbar.update(len(newrecords))
+            
+            if progress_bar:
+                pbar.close()
+
+            assert len(records) == response_json['count']
+        
+        records = pd.DataFrame(records)
+
+    else:
+        params['page'] = page
+        response = self.get(rest_url, params=params)
+        response_json = response.json()
+        records = pd.DataFrame(response_json['results'])
+        
+    if len(records) == 0:
+        records = pd.DataFrame(columns=record_keys)
+
+    # Parse date fields
+    if parse_dates and len(records) > 0:
+        for key in ['creation_date', 'last_modification_date', 'last_change_date']:
+            records[key] = records.apply(date_parser, args=[key], axis=1)
+    
+    return records
+
+def get_records_v2(self, template: Union[str, pd.Series, None] = None,
+                   title: Optional[str] = None,
+                   parse_dates: bool = True) -> pd.DataFrame:
+    """
+    Retrieves user records for a CDCS version 2.X.X database.
 
     Parameters
     ----------
