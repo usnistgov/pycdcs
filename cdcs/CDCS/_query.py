@@ -99,8 +99,10 @@ def query(self,
                 templates = []
                 if not isinstance(t, pd.Series):
                     t = self.get_template(title=t)
-                
-                data['templates'].append({"id":t.id})
+                t_id = t.id
+                if self.cdcsversion[0] > 2:
+                    t_id = int(t_id)
+                data['templates'].append({"id":t_id})
                 templates.append(t)
             templates = pd.DataFrame(templates)
                     
@@ -151,8 +153,7 @@ def query(self,
         records = pd.DataFrame(response_json['results'])
 
     if len(records) == 0:
-        if len(records) == 0:
-            records = pd.DataFrame(columns=query_keys)
+        records = pd.DataFrame(columns=query_keys)
 
     # Set template titles
     def set_template_titles(series, templates):
