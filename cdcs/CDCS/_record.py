@@ -22,7 +22,7 @@ def get_records(self, template: Union[str, pd.Series, None] = None,
                 parse_dates: bool = True,
                 progress_bar: bool = True) -> pd.DataFrame:
     """
-    Retrieves user records for a CDCS version 2.X.X database.
+    Retrieves user records.
 
     Parameters
     ----------
@@ -33,13 +33,13 @@ def get_records(self, template: Union[str, pd.Series, None] = None,
     page : int or None, optional
         If an int, then will return results only for that page of 10 records.
         If None (default), then results for all pages will be compiled and
-        returned.  Only used for CDCS versions >= 3. 
+        returned.  Only used for CDCS versions 3.X.X.
     parse_dates : bool, optional
         If True (default) then date fields will automatically be parsed into
         pandas.Timestamp objects.  If False they will be left as str values.
     progress_bar : bool, optional
         If True (default) a progress bar will be displayed for multi-page
-        query results. Only used for CDCS versions >= 3. 
+        query results. Only used for CDCS versions 3.X.X.
 
     Returns
     -------
