@@ -12,7 +12,7 @@ The package can be installed using pip:
 
     pip install cdcs
 
-or conda (comming soon):
+or conda:
 
     conda install -c conda-forge cdcs
 
