@@ -40,6 +40,7 @@ setup(name = 'cdcs',
         'requests',
         'pandas',
         'tqdm',
+        'ipython'
       ],
       package_data={'': ['*']},
       zip_safe = False)
