@@ -87,7 +87,7 @@ def get_records(self, template: Union[str, pd.Series, None] = None,
             # Repeat post until all content received
             params['page'] = 2
             while response_json['next'] is not None:
-                response = self.post(rest_url, params=params)
+                response = self.get(rest_url, params=params)
                 response_json = response.json()
                 newrecords = response_json['results']
                 records.extend(newrecords)
