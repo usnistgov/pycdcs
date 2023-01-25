@@ -118,7 +118,7 @@ def upload_xslt(self,
         filename = Path(filename).name
 
     elif name is not None:
-        filename = name + '.xsd'
+        filename = f'{name}.xsl'
         
     else:
         raise ValueError('filename or name must be given')

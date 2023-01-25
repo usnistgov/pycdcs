@@ -313,6 +313,9 @@ def upload_template(self,
     if content is None:
         raise ValueError('filename or content must be given')
     
+    if title in self.template_titles:
+        raise ValueError(f'template {title} already exists')
+
     # Encode str as bytes if needed
     if isinstance(content, str):
         try:
@@ -346,19 +349,7 @@ def upload_template(self,
         rest_url = '/rest/template/global/'
 
     # Send request
-    response = self.post(rest_url, data=data, checkstatus=False)
-
-    # Check for specific error message for pre-existing template titles
-    if response.status_code == 400 and response.json() == {'message': {'title': ['This field must be unique.']}}:
-        raise ValueError(f'template {title} already exists')
-    else:
-        # Throw any other errors
-        if not response.ok:
-            try:
-                print(response.json())
-            except:
-                print(response.text)
-            response.raise_for_status()
+    response = self.post(rest_url, data=data)
     
     if verbose and response.status_code == 201:
         template_id = response.json()['id']
@@ -444,7 +435,11 @@ def update_template(self,
     
     # Get template manager
     if template_manager is None:
-        template_manager = self.get_template_managers(title=title).loc[0]
+        template_managers = self.get_template_managers(title=title)
+        if len(template_managers) == 1:
+            template_manager = template_managers.iloc[0]
+        else:
+            raise ValueError(f'template {title} does not exist')
     
     # Encode str as bytes if needed
     if isinstance(content, str):
@@ -477,10 +472,9 @@ def update_template(self,
     # Send request
     response = self.post(rest_url, data=data)
     
+    template_id = response.json()['id']
     if verbose and response.status_code == 201:
-        template_id = response.json()['id']
         print(f'template {title} ({template_id}) successfully uploaded.')
-    
     
     # Set new version as the current template
     if set_current:
