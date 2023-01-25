@@ -1,6 +1,6 @@
 templates = [
     {
-        'id': 'firsthash1',
+        'id': 1,
         'user': None,
         'filename': 'first.xsd',
         'content': '',
@@ -8,21 +8,21 @@ templates = [
         'dependencies': []
     },
     {
-        'id': 'secondhash1',
+        'id': 2,
         'user': None,
         'filename': 'second.xsd',
         'content': '',
         'hash': 'hashi',
         'dependencies': []},
     {
-        'id': 'secondhash2',
+        'id': 3,
         'user': None,
         'filename': 'second.xsd',
         'content': '',
         'hash': 'hasho',
         'dependencies': []},
     {
-        'id': 'thirdhash1',
+        'id': 4,
         'user': None,
         'filename': 'third.xsd',
         'content': '',

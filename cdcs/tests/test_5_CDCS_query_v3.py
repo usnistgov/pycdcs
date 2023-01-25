@@ -13,51 +13,52 @@ class TestCDCS():
     def host(self):
         """str: A fake host url for testing"""
         return 'https://fakeurl.fake'
-        
+
     @property
-    def cdcs(self):
-        """A cdcs object with anonymous user. Create only once"""
+    def cdcs_v3(self):
         try:
-            return self.__cdcs
+            return self.__cdcs_v3
         except:
-            self.__cdcs = CDCS(host=self.host, username='')
-            return self.__cdcs
+            with responses.RequestsMock() as rsps:
+                rsps.add(responses.GET, f'{self.host}/rest/core-settings/', status=200,
+                     json={'core_version':'2.0.1'})
+                cdcs = CDCS(host=self.host, username='')
+            self.__cdcs_v3 = cdcs
+            return self.__cdcs_v3
 
     @responses.activate
-    def test_query(self):
+    def test_query_v3(self):
         """Tests query"""
 
         # Add Mock responses
-        template_manager_responses(self.host)
-        template_responses(self.host)
-        query_responses(self.host)
+        template_manager_responses(self.host, 3)
+        template_responses(self.host, 3)
+        query_responses(self.host, 3)
 
-        records = self.cdcs.query()
+        records = self.cdcs_v3.query()
         assert len(records) == 12
 
-        records = self.cdcs.query(template='first')
+        records = self.cdcs_v3.query(template='first')
         assert len(records) == 8
 
-        records = self.cdcs.query(template='second')
+        records = self.cdcs_v3.query(template='second')
         assert len(records) == 4
 
-        records = self.cdcs.query(title='second-record-2')
+        records = self.cdcs_v3.query(title='second-record-2')
         assert len(records) == 1
         assert records.title[0] == 'second-record-2'
         assert records.template_title[0] == 'second'
 
-        records = self.cdcs.query(mongoquery={"first.name": "first-record-7"})
+        records = self.cdcs_v3.query(mongoquery={"first.name": "first-record-7"})
         assert len(records) == 1
         assert records.title[0] == 'first-record-7'
         assert records.template_title[0] == 'first'
 
-        records = self.cdcs.query(keyword='first-record-3')
+        records = self.cdcs_v3.query(keyword='first-record-3')
         assert len(records) == 1
         assert records.title[0] == 'first-record-3'
         assert records.template_title[0] == 'first'
 
         with raises(ValueError):
-            records = self.cdcs.query(mongoquery={"first.name": "first-record-7"},
+            records = self.cdcs_v3.query(mongoquery={"first.name": "first-record-7"},
                                       keyword='first-record-3')
-
-        

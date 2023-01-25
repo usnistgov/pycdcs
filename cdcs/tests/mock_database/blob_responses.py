@@ -1,10 +1,14 @@
 import responses
+from . import v2_convert
 
-from .data import blobs, blob_content
-
-def blob_responses(host):
+def blob_responses(host, version=3):
     """Mock responses for blob methods"""
     
+    from .data import blobs, blob_content
+
+    if version == 2:
+        blobs = v2_convert(blobs)
+
     # Fill in host info
     for blob in blobs:
         blob['handle'] = blob['handle'].format(host=host)
@@ -35,21 +39,21 @@ def blob_responses(host):
                   json=[], status=200)
 
     # Get blob from id
-    responses.add(responses.GET, f'{host}/rest/blob/randomblobhash',
+    responses.add(responses.GET, f'{host}/rest/blob/1',
                   json=blobs[0], status=200)
 
     # Assign first blob to global workspace
-    responses.add(responses.PATCH, f'{host}/rest/blob/randomblobhash/assign/somehashkey',
+    responses.add(responses.PATCH, f'{host}/rest/blob/1/assign/1',
                   json={}, status=200)
 
     # Assign second blob to global workspace
-    responses.add(responses.PATCH, f'{host}/rest/blob/otherblobhash/assign/somehashkey',
+    responses.add(responses.PATCH, f'{host}/rest/blob/2/assign/1',
                   json={}, status=200)
 
     # Get blob contents
-    responses.add(responses.GET, f'{host}/rest/blob/download/randomblobhash',
+    responses.add(responses.GET, f'{host}/rest/blob/download/1',
                   body=blob_content, status=200)
 
     # Delete blob contents
-    responses.add(responses.DELETE, f'{host}/rest/blob/randomblobhash',
+    responses.add(responses.DELETE, f'{host}/rest/blob/1',
                   body=b'', status=204)

@@ -1,9 +1,13 @@
 import responses
+from . import v2_convert
 
-from .data import template_managers
-
-def template_manager_responses(host):
+def template_manager_responses(host, version=3):
     """Mock responses for get_template_managers()"""
+
+    from .data import template_managers
+    
+    if version == 2:
+        template_managers = v2_convert(template_managers)
 
     # Default query - return entries for 'is_disabled' is False
     params={}
