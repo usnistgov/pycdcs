@@ -1,6 +1,6 @@
 # Python CDCS REST API client
 
-This is a base Python package for accessing instances of the NIST Configurable Data Curation System (CDCS) databases, versions 2+.  It defines a Python CDCS class that streamlines REST calls to a database by
+This is a base Python package for accessing instances of the NIST Configurable Data Curation System (CDCS) databases, versions 2.X.X and 3.X.X.  It defines a Python CDCS class that streamlines REST calls to a database by
 
 - Taking access settings once (username, password, etc) and saving them for subsequent REST calls.
 - Defining methods that wrap around REST calls to interact with the database in a more Pythonic way.
