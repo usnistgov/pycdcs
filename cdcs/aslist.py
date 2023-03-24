@@ -27,9 +27,9 @@ def iaslist(term: Any) -> Generator[Any, None, None]:
         try:
             for t in term:
                 yield t
-        except:
+        except TypeError:
             yield term
-            
+
 def aslist(term: Any) -> list:
     """
     Create list representation of term. Treats a str term as a single
@@ -41,9 +41,8 @@ def aslist(term: Any) -> list:
         Term to convert into a list, if needed.
         
     Returns
-    -------    
+    -------
     list
         All items in term as a list.
     """
     return [t for t in iaslist(term)]
-
