@@ -15,7 +15,7 @@ class CDCS(RestClient):
                  username: Optional[str] = None,
                  password: Optional[str] = None,
                  auth: Optional[Tuple[str]] = None,
-                 cert: Union[str, Tuple[str], None] = None, 
+                 cert: Union[str, Tuple[str], None] = None,
                  certification: Union[str, Tuple[str], None] = None,
                  verify: Optional[bool] = True,
                  cdcsversion: Optional[str] = None):
@@ -45,31 +45,30 @@ class CDCS(RestClient):
             server's TLS certificate, or a string, in which case it must be a
             path to a CA bundle to use. Defaults to True.
         cdcsversion : str, optional
-            For CDCS versions 2.X.X, this allows for specifying the full CDCS
-            version to ensure the class methods perform the correct REST
-            calls.  This can be specified as "#.#.#", or if None is given will
-            default to "2.15.0".  For CDCS versions 3.X.X, this is ignored as
-            version info is obtained directly from the database.
+            Allows for specifying the full CDCS version to ensure the class
+            methods perform the correct REST calls.  This can be specified as
+            "#.#.#".  If not given, will attempt to infer or guess an appropriate
+            version that is likely to work.
         """
 
         # Call RestClient's init
         super().__init__(host, username=username, password=password, auth=auth,
                          cert=cert, certification=certification, verify=verify)
 
-        # Handle CDCS version 
+        # Handle CDCS version
         self.set_cdcsversion(cdcsversion=cdcsversion)
 
     # Import defined methods
     from ._workspace import (get_workspaces, get_workspace,
                              global_workspace)
-    
+
     from ._template import (get_template_managers, disable_template_manager,
                             restore_template_manager, get_templates, get_template,
                             template_titles, upload_template, update_template,
                             disable_template, restore_template, set_current_template)
 
     from ._query import query, query_count
-    
+
     from ._record import (get_records, get_records_v2, get_record, upload_record,
                           assign_records, update_record, delete_record, transform_record)
 
@@ -78,9 +77,9 @@ class CDCS(RestClient):
 
     from ._pid_xpath import (get_pid_xpaths, get_pid_xpath, upload_pid_xpath,
                              update_pid_xpath, delete_pid_xpath)
-    
+
     from ._xslt import (get_xslts, get_xslt, upload_xslt, update_xslt, delete_xslt)
-    
+
     @property
     def cdcsversion(self) -> Tuple:
         """Set CDCS version for 2.X.X, or core version bumped by 1 major version for 3.X.X"""
@@ -88,45 +87,51 @@ class CDCS(RestClient):
 
     def testcall(self):
         """Simple rest call to check if authentication parameters are valid."""
-        
+
         # Call /rest/data/ and parse by a non-existent title
         rest_url = '/rest/data/'
         params = {'title':'ARBITRARYNONEXISTANTTITLE'}
         self.get(rest_url, params=params)
 
-    def set_cdcsversion(self, 
+    def set_cdcsversion(self,
                         cdcsversion: Optional[str] = None):
 
-        # Make a call to fetch cdcs core version
-        r = self.get('/rest/core-settings/', checkstatus=False)
+        # Detect or infer a hopefully appropriate cdcs version
+        if cdcsversion is None:
 
-        # If CDCS is 3, then the URL exists
-        if r.status_code == 200:
+            # Make a call to fetch cdcs core version
+            r = self.get('/rest/core-settings/', checkstatus=False)
 
-            # Read, split and transform core version into ints
-            cdcsversion = r.json()['core_version'].split('.')
-            for i in range(3):
-                cdcsversion[i] = int(cdcsversion[i])
-            
-            # Bump the primary version up by 1
-            # NOTE This is core version +1 NOT CDCS version!!!
-            cdcsversion[0] += 1
+            # Extract core version if call exists and permissions allowed
+            if r.status_code == 200:
 
-        # If CDCS is 2, then the rest URL is invalid
-        elif r.status_code == 404:
-
-            # Set default version
-            if cdcsversion is None:
-                cdcsversion = '2.15.0'
-
-            # Split and transform into ints
-            cdcsversion = cdcsversion.split('.')
-            try:
-                assert len(cdcsversion) == 3
+                # Read, split and transform core version into ints
+                cdcsversion = r.json()['core_version'].split('.')
                 for i in range(3):
                     cdcsversion[i] = int(cdcsversion[i])
-            except:
+
+                # Bump primary core version by 1 to estimate cdcs version
+                cdcsversion[0] += 1
+
+            # Guess a version 3 if call exists but permissions denied
+            elif r.status_code == 401:
+                cdcsversion = (3, 2, 0)
+
+            # Guess a version 2 if call does not exist
+            elif r.status_code == 404:
+                cdcsversion = (2, 15, 0)
+
+        # Handle manually given cdcs versions
+        else:
+            # Split and transform into ints
+            cdcsversion = cdcsversion.split('.')
+            if len(cdcsversion) != 3:
                 raise ValueError('cdcs version must be given in format #.#.#')
+            try:
+                for i in range(3):
+                    cdcsversion[i] = int(cdcsversion[i])
+            except ValueError as err:
+                raise ValueError('cdcs version must be given in format #.#.#') from err
             if cdcsversion[0] < 2:
                 raise ValueError('CDCS class only works for versions 2+')
 
