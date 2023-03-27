@@ -16,7 +16,7 @@ class TestCDCS():
         
     def test_init_v2(self):
         
-        # Test #1: anonymous
+        # Test #1: anonymous 2.x.x
         with responses.RequestsMock() as rsps:
             rsps.add(responses.GET, f'{self.host}/rest/core-settings/', status=404)
             cdcs = CDCS(host=self.host, username='')
@@ -28,9 +28,7 @@ class TestCDCS():
         assert cdcs.cdcsversion == (2, 15, 0)
 
         # Test #2: anonymous plus a cdcs version
-        with responses.RequestsMock() as rsps:
-            rsps.add(responses.GET, f'{self.host}/rest/core-settings/', status=404)
-            cdcs = CDCS(host=self.host, username='', cdcsversion='2.9.1')
+        cdcs = CDCS(host=self.host, username='', cdcsversion='2.9.1')
 
         assert cdcs.host == self.host
         assert cdcs.username is None
@@ -67,7 +65,19 @@ class TestCDCS():
     def test_init_testcall_v3(self):
         """This function tests CDCS init and the associated testcall"""
         
-        # Test #1: anonymous
+        # Test #1: anonymous bad authentication
+        with responses.RequestsMock() as rsps:
+            rsps.add(responses.GET, f'{self.host}/rest/core-settings/', status=401,
+                     json={'detail': 'Authentication credentials were not provided.'})  
+            cdcs = CDCS(host=self.host, username='')
+
+        assert cdcs.host == self.host
+        assert cdcs.username is None
+        assert cdcs.cert is None
+        assert cdcs.verify is True
+        assert cdcs.cdcsversion == (3, 2, 0)
+
+        # Test #1: anonymous good authentication
         with responses.RequestsMock() as rsps:
             rsps.add(responses.GET, f'{self.host}/rest/core-settings/', status=200,
                      json={'core_version':'2.0.1'})
@@ -80,16 +90,13 @@ class TestCDCS():
         assert cdcs.cdcsversion == (3, 0, 1)
 
         # Test #2: anonymous plus a cdcs version
-        with responses.RequestsMock() as rsps:
-            rsps.add(responses.GET, f'{self.host}/rest/core-settings/', status=200,
-                     json={'core_version':'2.0.1'})
-            cdcs = CDCS(host=self.host, username='', cdcsversion='2.9.1')
+        cdcs = CDCS(host=self.host, username='', cdcsversion='3.1.0')
 
         assert cdcs.host == self.host
         assert cdcs.username is None
         assert cdcs.cert is None
         assert cdcs.verify is True
-        assert cdcs.cdcsversion == (3, 0, 1)
+        assert cdcs.cdcsversion == (3, 1, 0)
 
         # Test #3: Mock response for valid username + password
         with responses.RequestsMock() as rsps:
