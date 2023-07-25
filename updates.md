@@ -1,5 +1,7 @@
 # Updates
 
+*Version 0.2.2* Updated tests. Minor upkeep to fix depreciation warnings.
+
 *Version 0.2.1* Bug fixes related to guessing the CDCS version when not given and removing generator exit warning messages.
 
 *Version 0.2.0* Code updated to support CDCS versions 3.x.x.
