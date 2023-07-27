@@ -2,12 +2,12 @@ from setuptools import setup, find_packages
 import os
 
 def getreadme():
-    with open('README.md') as readme_file:
+    with open('README.md', encoding='UTF-8') as readme_file:
         return readme_file.read()
 
 def getversion():
     """Fetches version information from VERSION file"""
-    with open(os.path.join('cdcs', 'VERSION')) as version_file:
+    with open(os.path.join('cdcs', 'VERSION'), encoding='UTF-8') as version_file:
         version = version_file.read().strip()
     return version
 
@@ -19,7 +19,6 @@ setup(name = 'cdcs',
         'Development Status :: 4 - Beta',
         'Intended Audience :: Science/Research',
         'Natural Language :: English',
-        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',

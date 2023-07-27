@@ -6,7 +6,7 @@
 
 *Version 0.2.0* Code updated to support CDCS versions 3.x.x.
 
-*Version 0.1.9* Automatic interpretation of datetime fields into Python objects added to get and query methods for records and templates.  Progress bar added to query.  Template operations extended to include administration capabilities such uploading, updating, disabling and restoring.  Operations for uploading, modifying and deleting XSLT files and PID XPATHs added.  
+*Version 0.1.9* Automatic interpretation of datetime fields into Python objects added to get and query methods for records and templates.  Progress bar added to query.  Template operations extended to include administration capabilities such uploading, updating, disabling and restoring.  Operations for uploading, modifying and deleting XSLT files and PID XPATHs added.
 
 *Version 0.1.8* Package requirements cleaned up.  An inadvertent unused package import removed.
 
