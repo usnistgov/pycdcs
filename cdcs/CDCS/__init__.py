@@ -75,8 +75,8 @@ class CDCS(RestClient):
     from ._blob import (get_blobs, get_blob, upload_blob, delete_blob, assign_blobs,
                         get_blob_contents, download_blob)
 
-    from ._pid_xpath import (get_pid_xpaths, get_pid_xpath, upload_pid_xpath,
-                             update_pid_xpath, delete_pid_xpath)
+    from ._pid import (auto_set_pid, auto_set_pid_off, get_pid_xpaths, get_pid_xpath,
+                             upload_pid_xpath, update_pid_xpath, delete_pid_xpath)
 
     from ._xslt import (get_xslts, get_xslt, upload_xslt, update_xslt, delete_xslt)
 

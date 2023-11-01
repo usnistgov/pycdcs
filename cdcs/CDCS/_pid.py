@@ -1,6 +1,52 @@
 from typing import Union
+import contextlib
 
 import pandas as pd
+
+@property
+def auto_set_pid(self) -> bool:
+    """bool: Value of the auto_set_pid value"""
+    rest_url = '/pid/rest/settings'
+    response = self.get(rest_url)
+    return response.json()['auto_set_pid']
+
+@auto_set_pid.setter
+def auto_set_pid(self, value):
+    rest_url = '/pid/rest/settings'
+    data = {'auto_set_pid': value}
+    response = self.patch(rest_url, data=data)
+
+@contextlib.contextmanager
+def auto_set_pid_off(self, work: bool = True):
+    """
+    Context manager that turns the auto_set_pid off within the context block,
+    then turns it back on when the block is exited.  If you have records with
+    PID URLs, auto_set_pid should be on to resolve the PIDs, but it should be
+    off when uploading/updating records.  This context manager helps ensure
+    that the appropriate setting changes are performed and supports the bulk
+    uploading/updating of records.
+
+    Parameters
+    ----------
+    work : bool, optional
+        The default value of True will turn the auto_set_pid setting off and
+        on as described above.  Setting work to False will make the context
+        manager not work, i.e. do nothing.  This is simply a convenience for
+        higher level functions to avoid performing unnecessary REST calls
+        associated with changing the auto_set_pid if the records being added
+        do not contain PID values or if the setting is being manually
+        controlled elsewhere.  
+    """
+    if not isinstance(work, bool):
+        raise TypeError('work must be a bool')
+   
+    if work:
+        self.auto_set_pid = False
+    try:
+        yield
+    finally:
+        if work:
+            self.auto_set_pid = True
 
 def get_pid_xpaths(self, template: Union[str, pd.Series, None] = None) -> pd.DataFrame:
     """

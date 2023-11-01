@@ -282,6 +282,7 @@ def upload_record(self, template: Union[str, pd.Series],
                   title: Optional[str] = None,
                   workspace: Union[str, pd.Series] = None,
                   duplicatecheck: bool = True,
+                  auto_set_pid_off: bool = False,
                   verbose: bool = False):
     """
     Adds a data record to the curator
@@ -306,6 +307,13 @@ def upload_record(self, template: Union[str, pd.Series],
         exists in the database with the same template and title.  If False, no
         check is performed possibly allowing for multiple records with the same
         title to exist in the database.
+    auto_set_pid_off : bool, optional
+        If True the auto_set PID will automatically be turned off before and
+        turned on after uploading. Not  needed if the record has no PID value
+        or pid_xpath set.  Convenient if a single record with a PID
+        value is being uploaded.  For uploading multiple records with PID values
+        use the auto_set_pid_off context manager around batch uploads, or
+        manually turn the setting on/off with auto_set_pid.
     verbose : bool, optional
         Setting this to True will print extra status messages.  Default value
         is False.
@@ -376,7 +384,9 @@ def upload_record(self, template: Union[str, pd.Series],
     }
     
     rest_url = '/rest/data/'
-    response = self.post(rest_url, data=data)
+
+    with self.auto_set_pid_off(auto_set_pid_off):
+        response = self.post(rest_url, data=data)
     
     if verbose and response.status_code == 201:
         record_id = response.json()['id']
@@ -392,6 +402,7 @@ def update_record(self, record: Optional[pd.Series] = None,
                   filename: Union[str, Path, None] = None,
                   content: Union[str, bytes, None] = None,
                   workspace: Union[str, pd.Series, None] = None,
+                  auto_set_pid_off: bool = False,
                   verbose: bool = False):
     """
     Updates the content for a single data record in the curator.
@@ -415,6 +426,13 @@ def update_record(self, record: Optional[pd.Series] = None,
     workspace : str or pandas.Series, optional
         If given, the record will be assigned to this workspace after
         successfully being updated.
+    auto_set_pid_off : bool, optional
+        If True the auto_set PID will automatically be turned off before and
+        turned on after uploading. Not  needed if the record has no PID value
+        or pid_xpath set.  Convenient if a single record with a PID
+        value is being uploaded.  For uploading multiple records with PID values
+        use the auto_set_pid_off context manager around batch uploads, or
+        manually turn the setting on/off with auto_set_pid.
     verbose : bool, optional
         Setting this to True will print extra status messages.  Default value
         is False.
@@ -465,7 +483,8 @@ def update_record(self, record: Optional[pd.Series] = None,
     }
 
     rest_url = f'/rest/data/{record.id}/'
-    response = self.patch(rest_url, data=data)
+    with self.auto_set_pid_off(auto_set_pid_off):
+        response = self.patch(rest_url, data=data)
     
     if verbose and response.status_code == 200:
         print(f'record {record.title} ({record.id}) has been updated.')
