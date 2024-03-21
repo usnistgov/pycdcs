@@ -175,6 +175,7 @@ class RestClient(object):
     def request(self, method: str,
                 rest_url: str,
                 checkstatus: bool = True,
+                retry504: int = 5,
                 **kwargs) -> requests.Response:
         """
         Wrapper around requests.request that automatically sets any access
@@ -190,6 +191,10 @@ class RestClient(object):
             If True (default) then the response status of the call will be
             checked and an error thrown if bad.  Setting this to False will
             not automatically check the status.
+        retry504 : int, optional
+            Number of times the request will be tried if a 504 gateway timeout
+            status is received.  Useful for finnicky databases.  Default value
+            is 5.
         **kwargs : any, optional
             Any other arguments supported by requests.request() except for url.
             Default values for auth, verify, and cert will be used based on the
@@ -213,9 +218,22 @@ class RestClient(object):
         cert = kwargs.pop('cert', self.cert)
         verify = kwargs.pop('verify', self.verify)
         
-        # Send request
-        response = requests.request(method, url, auth=auth, verify=verify,
-                                    cert=cert, **kwargs)
+        # Loop to repeat request calls
+        count504 = 0
+        while True:
+            # Send request
+            response = requests.request(method, url, auth=auth, verify=verify,
+                                        cert=cert, **kwargs)
+            
+            # Count 504 Gateway timeout errors
+            if response.status_code == 504:
+                count504 += 1
+                if count504 == retry504:
+                    break
+            
+            # Break for all other status codes
+            else:
+                break
         
         # Check for errors
         if checkstatus and not response.ok:
