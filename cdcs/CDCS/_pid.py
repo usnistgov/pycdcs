@@ -12,7 +12,7 @@ def auto_set_pid(self) -> bool:
 
 @auto_set_pid.setter
 def auto_set_pid(self, value):
-    rest_url = '/pid/rest/settings'
+    rest_url = '/pid/rest/settings/'
     data = {'auto_set_pid': value}
     response = self.patch(rest_url, data=data)
 
