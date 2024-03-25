@@ -6,14 +6,14 @@ import pandas as pd
 @property
 def auto_set_pid(self) -> bool:
     """bool: Value of the auto_set_pid value"""
-    rest_url = '/pid/rest/settings'
+    rest_url = '/pid/rest/settings/'
     response = self.get(rest_url)
     return response.json()['auto_set_pid']
 
 @auto_set_pid.setter
 def auto_set_pid(self, value):
     rest_url = '/pid/rest/settings/'
-    data = {'auto_set_pid': value}
+    data = {'auto_set_pid': str(value)}
     response = self.patch(rest_url, data=data)
 
 @contextlib.contextmanager
@@ -62,6 +62,12 @@ def get_pid_xpaths(self, template: Union[str, pd.Series, None] = None) -> pd.Dat
     pandas.DataFrame
         All matching user records.
     """
+    # Version update patch
+    if self.cdcsversion[0] == 3 and self.cdcsversion[1] > 5:
+        path = 'path'
+    else:
+        path = 'xpath'
+
     # Fetch id of template if needed
     if template is not None:
         if isinstance(template, str):
@@ -70,12 +76,12 @@ def get_pid_xpaths(self, template: Union[str, pd.Series, None] = None) -> pd.Dat
             raise TypeError('template must be a template title or pandas.Series')
     
     # Get response
-    rest_url = '/pid/rest/settings/xpath/'
+    rest_url = f'/pid/rest/settings/{path}/'
     response = self.get(rest_url)
     xpaths = response.json()
     xpaths = pd.DataFrame(xpaths)
     if len(xpaths) == 0:
-        xpaths = pd.DataFrame(columns=['id', 'xpath', 'template'])
+        xpaths = pd.DataFrame(columns=['id', path, 'template'])
     
     if template is not None:
         xpaths = xpaths[xpaths.template == template.id]
@@ -128,6 +134,12 @@ def upload_pid_xpath(self, template: Union[str, pd.Series], xpath: str):
     ValueError
         If the template already has an pid xpath assigned to it.
     """
+    # Version update patch
+    if self.cdcsversion[0] == 3 and self.cdcsversion[1] > 5:
+        path = 'path'
+    else:
+        path = 'xpath'
+
     # Fetch id of template
     if isinstance(template, str):
         template = self.get_template(title=template)
@@ -142,9 +154,9 @@ def upload_pid_xpath(self, template: Union[str, pd.Series], xpath: str):
     # Set data based on arguments
     data = {}
     data['template'] = template.id
-    data['xpath'] = xpath
+    data[path] = xpath
 
-    rest_url = '/pid/rest/settings/xpath/'
+    rest_url = f'/pid/rest/settings/{path}/'
     response = self.post(rest_url, data=data)
 
 def update_pid_xpath(self, template: Union[str, pd.Series], xpath: str):
@@ -163,11 +175,11 @@ def update_pid_xpath(self, template: Union[str, pd.Series], xpath: str):
     ValueError
         If the template already has an pid xpath assigned to it.
     """
-    # Fetch id of template
-    #if isinstance(template, str):
-    #    template = self.get_template(title=template)
-    #if not isinstance(template, pd.Series):
-    #    raise TypeError('template must be a template title or pandas.Series')
+    # Version update patch
+    if self.cdcsversion[0] == 3 and self.cdcsversion[1] > 5:
+        path = 'path'
+    else:
+        path = 'xpath'
 
     # Check that template has an pid xpath assigned to it
     xpath_series = self.get_pid_xpath(template=template)
@@ -175,9 +187,9 @@ def update_pid_xpath(self, template: Union[str, pd.Series], xpath: str):
     # Set data based on arguments
     data = {}
     #data['template'] = template.id
-    data['xpath'] = xpath
+    data[path] = xpath
 
-    rest_url = f'/pid/rest/settings/xpath/{xpath_series.id}/'
+    rest_url = f'/pid/rest/settings/{path}/{xpath_series.id}/'
     response = self.patch(rest_url, data=data)
 
 def delete_pid_xpath(self, template: Union[str, pd.Series]):
@@ -194,14 +206,14 @@ def delete_pid_xpath(self, template: Union[str, pd.Series]):
     ValueError
         If the template already has an pid xpath assigned to it.
     """
-    # Fetch id of template
-    #if isinstance(template, str):
-    #    template = self.get_template(title=template)
-    #if not isinstance(template, pd.Series):
-    #    raise TypeError('template must be a template title or pandas.Series')
+    # Version update patch
+    if self.cdcsversion[0] == 3 and self.cdcsversion[1] > 5:
+        path = 'path'
+    else:
+        path = 'xpath'
 
     # Check that template has an pid xpath assigned to it
     xpath_series = self.get_pid_xpath(template=template)
 
-    rest_url = f'/pid/rest/settings/xpath/{xpath_series.id}/'
+    rest_url = f'/pid/rest/settings/{path}/{xpath_series.id}/'
     response = self.delete(rest_url)

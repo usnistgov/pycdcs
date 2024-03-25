@@ -1,5 +1,7 @@
 # Updates
 
+*Version 0.2.3* Code cleanup that should have no effect except that Python < 3.7 no longer supported. The ability to toggle the auto_set_pid added and integrated into upload_record() and update_record() methods.  A retry504 option added to RestClient.requests to retry a REST call if the connection is poor.  Bug fixes related to CDCS version 3 databases.
+
 *Version 0.2.2* Updated tests. Minor upkeep to fix depreciation warnings.
 
 *Version 0.2.1* Bug fixes related to guessing the CDCS version when not given and removing generator exit warning messages.

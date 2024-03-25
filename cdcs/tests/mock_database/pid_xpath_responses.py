@@ -14,7 +14,6 @@ def pid_xpath_responses(host, version=3):
                   json=pid_xpaths, status=200)
 
     # Upload a new pid_xpath
-      # Upload a new pid_xpath
     data = {}
     data['template'] = '1'
     data['xpath'] = 'roooty.key'
@@ -38,3 +37,29 @@ def pid_xpath_responses(host, version=3):
     # Delete xslt
     responses.add(responses.DELETE, f'{host}/pid/rest/settings/xpath/2/',
                   body=b'', status=204)
+    
+    
+    # Get pid settings
+    responses.add(responses.GET, f'{host}/pid/rest/settings/',
+                  json={'auto_set_pid': True, 'path': '', 'format': '[a-zA-Z0-9_\\-]+',
+                        'system_name': 'local', 'system_type': 'core_linked_records_app.utils.providers.local.LocalIdProvider',
+                        'prefixes': ['test']}, status=200)
+
+    # Change pid settings
+    data = {}
+    data['auto_set_pid'] = 'True'
+    responses.add(responses.PATCH, f'{host}/pid/rest/settings/',
+                  match=[responses.matchers.urlencoded_params_matcher(data)],
+                  json={'auto_set_pid': True, 'path': '', 'format': '[a-zA-Z0-9_\\-]+',
+                        'system_name': 'local', 'system_type': 'core_linked_records_app.utils.providers.local.LocalIdProvider',
+                        'prefixes': ['test']}, status=200)
+    
+    data = {}
+    data['auto_set_pid'] = 'False'
+    responses.add(responses.PATCH, f'{host}/pid/rest/settings/',
+                  match=[responses.matchers.urlencoded_params_matcher(data)],
+                  json={'auto_set_pid': False, 'path': '', 'format': '[a-zA-Z0-9_\\-]+',
+                        'system_name': 'local', 'system_type': 'core_linked_records_app.utils.providers.local.LocalIdProvider',
+                        'prefixes': ['test']}, status=200)
+
+    

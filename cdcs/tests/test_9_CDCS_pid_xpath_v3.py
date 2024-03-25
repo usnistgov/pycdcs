@@ -27,6 +27,24 @@ class TestCDCS():
             return self.__cdcs_v3
 
     @responses.activate
+    def test_auto_set_pid(self):
+        """Tests auto_set_pid attribute"""
+        
+        # Add Mock responses
+        pid_xpath_responses(self.host, 2)
+
+        # Test auto_set_pid getter
+        assert self.cdcs_v3.auto_set_pid is True
+
+        # Test auto_set_pid setter
+        self.cdcs_v3.auto_set_pid = False
+        self.cdcs_v3.auto_set_pid = True
+
+        # Test context manager
+        with self.cdcs_v3.auto_set_pid_off():
+            pass
+
+    @responses.activate
     def test_get_pid_xpaths_v3(self):
         """Tests get_pid_xpaths()"""
 
