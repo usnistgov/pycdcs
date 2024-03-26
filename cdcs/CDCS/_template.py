@@ -7,6 +7,10 @@ from typing import Optional, Union
 # https://pandas.pydata.org/
 import pandas as pd
 
+manager_keys = ['id','versions','current','disabled_versions','title',
+                'user','is_disabled','_cls','creation_date','display_rank']
+template_keys = ['id','user','filename','checksum','content','hash','dependencies','title']
+
 def get_template_managers(self, title: Optional[str] = None,
                           is_disabled: bool = False,
                           useronly: bool = False) -> pd.DataFrame:
@@ -52,6 +56,8 @@ def get_template_managers(self, title: Optional[str] = None,
     # Get response
     response = self.get(rest_url, params=params)
     template_managers = pd.DataFrame(response.json())
+    if len(template_managers) == 0:
+        template_managers = pd.DataFrame(columns=manager_keys)
     
     return template_managers
     
@@ -200,7 +206,7 @@ def get_templates(self, title: Optional[str] = None,
         else:
             raise TypeError('current must be bool')
     else:
-        templates = pd.DataFrame([])
+        templates = pd.DataFrame(columns=template_keys)
             
     return templates
 

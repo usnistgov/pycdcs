@@ -101,6 +101,15 @@ class TestCDCS():
         assert self.cdcs_v2.template_titles == ['first', 'second']
 
     @responses.activate
+    def test_empty_template_titles_v2(self):
+        """Unique test for initial database"""
+        responses.add(responses.GET,
+                    f'{self.host}/rest/template-version-manager/global/',
+                    status=200, json=[],
+                    match=[responses.matchers.query_param_matcher({})])
+        assert self.cdcs_v2.template_titles == []
+
+    @responses.activate
     def test_upload_template_v2(self):
         """Tests upload_template()"""
 
