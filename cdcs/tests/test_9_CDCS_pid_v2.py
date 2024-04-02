@@ -31,7 +31,7 @@ class TestCDCS():
         """Tests auto_set_pid attribute"""
         
         # Add Mock responses
-        pid_xpath_responses(self.host, 2)
+        pid_responses(self.host, 2)
 
         # Test auto_set_pid getter
         assert self.cdcs_v2.auto_set_pid is True
@@ -45,65 +45,65 @@ class TestCDCS():
             pass
 
     @responses.activate
-    def test_get_pid_xpaths_v2(self):
-        """Tests get_pid_xpaths()"""
+    def test_get_pid_paths_v2(self):
+        """Tests get_pid_paths()"""
 
         # Add Mock responses
-        pid_xpath_responses(self.host, 2)
+        pid_responses(self.host, 2)
 
-        # Test get_pid_xpaths() with no arguments
-        pid_xpaths = self.cdcs_v2.get_pid_xpaths()
-        assert pid_xpaths.id.tolist() == ['1', '2']
-        assert pid_xpaths.xpath.tolist() == ['root.key', 'rooty.key']
+        # Test get_pid_paths() with no arguments
+        pid_paths = self.cdcs_v2.get_pid_paths()
+        assert pid_paths.id.tolist() == ['1', '2']
+        assert pid_paths.xpath.tolist() == ['root.key', 'rooty.key']
 
     @responses.activate
-    def test_get_pid_xpath_v2(self):
-        """Tests get_pid_xpath()"""
+    def test_get_pid_path_v2(self):
+        """Tests get_pid_path()"""
 
         # Add Mock responses
-        pid_xpath_responses(self.host, 2)
+        pid_responses(self.host, 2)
         template_responses(self.host, 2)
         template_manager_responses(self.host, 2)
 
-        # Test get_pid_xpath() with filename
-        pid_xpath = self.cdcs_v2.get_pid_xpath(template='second')
-        assert pid_xpath.id == '2'
-        assert pid_xpath.xpath == 'rooty.key'
+        # Test get_pid_path() with filename
+        pid_path = self.cdcs_v2.get_pid_path(template='second')
+        assert pid_path.id == '2'
+        assert pid_path.xpath == 'rooty.key'
 
     @responses.activate
-    def test_upload_pid_xpath_v2(self, tmpdir):
-        """Tests upload_pid_xpath()"""
+    def test_upload_pid_path_v2(self, tmpdir):
+        """Tests upload_pid_path()"""
 
         # Add Mock responses
-        pid_xpath_responses(self.host, 2)
+        pid_responses(self.host, 2)
         template_responses(self.host, 2)
         template_manager_responses(self.host, 2)
 
         # Test upload_xslt() with only a filename
         with raises(ValueError):
-            self.cdcs_v2.upload_pid_xpath('second', 'rooty.key')
+            self.cdcs_v2.upload_pid_path('second', 'rooty.key')
 
     @responses.activate
-    def test_update_pid_xpath_v2(self, tmpdir):
-        """Tests update_pid_xpath()"""
+    def test_update_pid_path_v2(self, tmpdir):
+        """Tests update_pid_path()"""
 
         # Add Mock responses
-        pid_xpath_responses(self.host, 2)
+        pid_responses(self.host, 2)
         template_responses(self.host, 2)
         template_manager_responses(self.host, 2)
 
-        self.cdcs_v2.update_pid_xpath('second', 'rooty.key')
+        self.cdcs_v2.update_pid_path('second', 'rooty.key')
         
     @responses.activate
-    def test_delete_pid_xpath_v2(self):
-        """Tests delete_pid_xpath()"""
+    def test_delete_pid_path_v2(self):
+        """Tests delete_pid_path()"""
 
         # Add Mock responses
-        pid_xpath_responses(self.host, 2)
+        pid_responses(self.host, 2)
         template_responses(self.host, 2)
         template_manager_responses(self.host, 2)
 
-        self.cdcs_v2.delete_pid_xpath('second')
+        self.cdcs_v2.delete_pid_path('second')
 
 
     

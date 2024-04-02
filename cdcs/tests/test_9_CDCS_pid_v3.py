@@ -21,7 +21,7 @@ class TestCDCS():
         except:
             with responses.RequestsMock() as rsps:
                 rsps.add(responses.GET, f'{self.host}/rest/core-settings/', status=200,
-                     json={'core_version':'2.0.1'})
+                     json={'core_version':'2.6.0'})
                 cdcs = CDCS(host=self.host, username='')
             self.__cdcs_v3 = cdcs
             return self.__cdcs_v3
@@ -31,7 +31,7 @@ class TestCDCS():
         """Tests auto_set_pid attribute"""
         
         # Add Mock responses
-        pid_xpath_responses(self.host, 2)
+        pid_responses(self.host, 2)
 
         # Test auto_set_pid getter
         assert self.cdcs_v3.auto_set_pid is True
@@ -45,62 +45,62 @@ class TestCDCS():
             pass
 
     @responses.activate
-    def test_get_pid_xpaths_v3(self):
-        """Tests get_pid_xpaths()"""
+    def test_get_pid_paths_v3(self):
+        """Tests get_pid_paths()"""
 
         # Add Mock responses
-        pid_xpath_responses(self.host, 3)
+        pid_responses(self.host, 3)
 
-        # Test get_pid_xpaths() with no arguments
-        pid_xpaths = self.cdcs_v3.get_pid_xpaths()
-        assert pid_xpaths.id.tolist() == [1, 2]
-        assert pid_xpaths.xpath.tolist() == ['root.key', 'rooty.key']
+        # Test get_pid_paths() with no arguments
+        pid_paths = self.cdcs_v3.get_pid_paths()
+        assert pid_paths.id.tolist() == [1, 2]
+        assert pid_paths.path.tolist() == ['root.key', 'rooty.key']
 
     @responses.activate
-    def test_get_pid_xpath_v3(self):
-        """Tests get_pid_xpath()"""
+    def test_get_pid_path_v3(self):
+        """Tests get_pid_path()"""
 
         # Add Mock responses
-        pid_xpath_responses(self.host, 3)
+        pid_responses(self.host, 3)
         template_responses(self.host, 3)
         template_manager_responses(self.host, 3)
 
-        # Test get_pid_xpath() with filename
-        pid_xpath = self.cdcs_v3.get_pid_xpath(template='second')
-        assert pid_xpath.id == 2
-        assert pid_xpath.xpath == 'rooty.key'
+        # Test get_pid_path() with filename
+        pid_path = self.cdcs_v3.get_pid_path(template='second')
+        assert pid_path.id == 2
+        assert pid_path.path == 'rooty.key'
 
     @responses.activate
-    def test_upload_pid_xpath_v3(self, tmpdir):
-        """Tests upload_pid_xpath()"""
+    def test_upload_pid_path_v3(self, tmpdir):
+        """Tests upload_pid_path()"""
 
         # Add Mock responses
-        pid_xpath_responses(self.host, 3)
+        pid_responses(self.host, 3)
         template_responses(self.host, 3)
         template_manager_responses(self.host, 3)
 
         # Test upload_xslt() with only a filename
         with raises(ValueError):
-            self.cdcs_v3.upload_pid_xpath('second', 'rooty.key')
+            self.cdcs_v3.upload_pid_path('second', 'rooty.key')
 
     @responses.activate
-    def test_update_pid_xpath_v3(self, tmpdir):
-        """Tests update_pid_xpath()"""
+    def test_update_pid_path_v3(self, tmpdir):
+        """Tests update_pid_path()"""
 
         # Add Mock responses
-        pid_xpath_responses(self.host, 3)
+        pid_responses(self.host, 3)
         template_responses(self.host, 3)
         template_manager_responses(self.host, 3)
 
-        self.cdcs_v3.update_pid_xpath('second', 'rooty.key')
+        self.cdcs_v3.update_pid_path('second', 'rooty.key')
         
     @responses.activate
-    def test_delete_pid_xpath_v3(self):
-        """Tests delete_pid_xpath()"""
+    def test_delete_pid_path_v3(self):
+        """Tests delete_pid_path()"""
 
         # Add Mock responses
-        pid_xpath_responses(self.host, 3)
+        pid_responses(self.host, 3)
         template_responses(self.host, 3)
         template_manager_responses(self.host, 3)
 
-        self.cdcs_v3.delete_pid_xpath('second')
+        self.cdcs_v3.delete_pid_path('second')

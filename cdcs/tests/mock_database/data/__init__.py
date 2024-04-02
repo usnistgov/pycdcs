@@ -4,4 +4,4 @@ from .templates import templates
 from .records import records
 from .blobs import blobs, blob_content
 from .xslts import xslts
-from .pid_xpaths import pid_xpaths
+from .pid_paths import pid_paths, pid_xpaths

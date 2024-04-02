@@ -28,4 +28,4 @@ from .query_responses import query_responses
 from .blob_responses import blob_responses
 from .record_responses import record_responses
 from .xslt_responses import xslt_responses
-from .pid_xpath_responses import pid_xpath_responses
+from .pid_responses import pid_responses

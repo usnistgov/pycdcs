@@ -48,7 +48,7 @@ def auto_set_pid_off(self, work: bool = True):
         if work:
             self.auto_set_pid = True
 
-def get_pid_xpaths(self, template: Union[str, pd.Series, None] = None) -> pd.DataFrame:
+def get_pid_paths(self, template: Union[str, pd.Series, None] = None) -> pd.DataFrame:
     """
     Retrieves the pid xpath values assigned to the templates.
 
@@ -63,7 +63,7 @@ def get_pid_xpaths(self, template: Union[str, pd.Series, None] = None) -> pd.Dat
         All matching user records.
     """
     # Version update patch
-    if self.cdcsversion[0] == 3 and self.cdcsversion[1] > 5:
+    if self.cdcsversion[0] == 3 and self.cdcsversion[1] >= 6:
         path = 'path'
     else:
         path = 'xpath'
@@ -88,7 +88,7 @@ def get_pid_xpaths(self, template: Union[str, pd.Series, None] = None) -> pd.Dat
         
     return xpaths
 
-def get_pid_xpath(self, template: Union[str, pd.Series, None] = None) -> pd.Series:
+def get_pid_path(self, template: Union[str, pd.Series, None] = None) -> pd.Series:
     """
     Retrieves the pid xpath value assigned to a single template.
 
@@ -118,7 +118,7 @@ def get_pid_xpath(self, template: Union[str, pd.Series, None] = None) -> pd.Seri
     else:
         raise ValueError('Multiple matching pid xpaths found')
         
-def upload_pid_xpath(self, template: Union[str, pd.Series], xpath: str):
+def upload_pid_path(self, template: Union[str, pd.Series], xpath: str):
     """
     Assigns a pid xpath to a template.
 
@@ -159,7 +159,7 @@ def upload_pid_xpath(self, template: Union[str, pd.Series], xpath: str):
     rest_url = f'/pid/rest/settings/{path}/'
     response = self.post(rest_url, data=data)
 
-def update_pid_xpath(self, template: Union[str, pd.Series], xpath: str):
+def update_pid_path(self, template: Union[str, pd.Series], xpath: str):
     """
     Changes the pid xpath assigned to a template.
 
@@ -192,7 +192,7 @@ def update_pid_xpath(self, template: Union[str, pd.Series], xpath: str):
     rest_url = f'/pid/rest/settings/{path}/{xpath_series.id}/'
     response = self.patch(rest_url, data=data)
 
-def delete_pid_xpath(self, template: Union[str, pd.Series]):
+def delete_pid_path(self, template: Union[str, pd.Series]):
     """
     Deletes the pid xpath assigned to a template.
 
@@ -217,3 +217,11 @@ def delete_pid_xpath(self, template: Union[str, pd.Series]):
 
     rest_url = f'/pid/rest/settings/{path}/{xpath_series.id}/'
     response = self.delete(rest_url)
+
+
+# Define alias functions
+get_pid_xpaths = get_pid_paths
+get_pid_xpath = get_pid_path
+upload_pid_xpath = upload_pid_path
+update_pid_xpath = update_pid_path
+delete_pid_xpath = delete_pid_path
