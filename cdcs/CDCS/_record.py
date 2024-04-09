@@ -218,6 +218,7 @@ def assign_records(self, workspace: Union[str, pd.Series],
                    ids: Union[str, list, None] = None,
                    template: Union[str, pd.Series, None] = None,
                    title: Optional[str] = None,
+                   auto_set_pid_off: bool = False,
                    verbose: bool = False):
     """
     Assigns one or more records to a workspace.
@@ -239,6 +240,13 @@ def assign_records(self, workspace: Union[str, pd.Series],
     title : str, optional
         The title of a record to assign to the workspace. Cannot be given with
         records or ids.
+    auto_set_pid_off : bool, optional
+        If True the auto_set PID will automatically be turned off before and
+        turned on after uploading. Not  needed if the record has no PID value
+        or pid_xpath set.  Convenient if a single record with a PID
+        value is being uploaded.  For uploading multiple records with PID values
+        use the auto_set_pid_off context manager around batch uploads, or
+        manually turn the setting on/off with auto_set_pid.
     verbose : bool, optional
         Setting this to True will print extra status messages.  Default value
         is False.
@@ -269,12 +277,13 @@ def assign_records(self, workspace: Union[str, pd.Series],
         raise ValueError('No records specified to assign to the workspace')
 
     # Assign records to the workspace
-    for record_id in aslist(ids):
-        rest_url = f'/rest/data/{record_id}/assign/{workspace_id}'
-        response = self.patch(rest_url)
+    with self.auto_set_pid_off(auto_set_pid_off):
+        for record_id in aslist(ids):
+            rest_url = f'/rest/data/{record_id}/assign/{workspace_id}'
+            response = self.patch(rest_url)
 
-        if verbose and response.status_code == 200:
-            print(f'record {record_id} assigned to workspace {workspace_id}')
+            if verbose and response.status_code == 200:
+                print(f'record {record_id} assigned to workspace {workspace_id}')
 
 def upload_record(self, template: Union[str, pd.Series],
                   filename: Optional[str] = None,
@@ -388,13 +397,13 @@ def upload_record(self, template: Union[str, pd.Series],
     with self.auto_set_pid_off(auto_set_pid_off):
         response = self.post(rest_url, data=data)
     
-    if verbose and response.status_code == 201:
-        record_id = response.json()['id']
-        print(f'record {title} ({record_id}) successfully uploaded.')
+        if verbose and response.status_code == 201:
+            record_id = response.json()['id']
+            print(f'record {title} ({record_id}) successfully uploaded.')
 
-    if workspace is not None:
-        assign_records(self, workspace=workspace, ids=[response.json()['id']],
-                       verbose=verbose)
+        if workspace is not None:
+            assign_records(self, workspace=workspace, ids=[response.json()['id']],
+                        verbose=verbose)
 
 def update_record(self, record: Optional[pd.Series] = None,
                   template: Union[str, pd.Series, None] = None,
@@ -486,12 +495,12 @@ def update_record(self, record: Optional[pd.Series] = None,
     with self.auto_set_pid_off(auto_set_pid_off):
         response = self.patch(rest_url, data=data)
     
-    if verbose and response.status_code == 200:
-        print(f'record {record.title} ({record.id}) has been updated.')
-    
-    if workspace is not None:
-        assign_records(self, workspace=workspace, ids=[record.id],
-                       verbose=verbose)
+        if verbose and response.status_code == 200:
+            print(f'record {record.title} ({record.id}) has been updated.')
+        
+        if workspace is not None:
+            assign_records(self, workspace=workspace, ids=[record.id],
+                        verbose=verbose)
 
 def delete_record(self, record: Optional[pd.Series] = None,
                   template: Union[str, pd.Series, None] = None,
