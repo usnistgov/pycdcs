@@ -176,6 +176,7 @@ def get_records_v2(self, template: Union[str, pd.Series, None] = None,
 
 def get_record(self, template: Union[str, pd.Series, None] = None,
                title: Optional[str] = None,
+               id: Optional[int] = None,
                parse_dates: bool = True) -> pd.Series:
     """
     Retrieves a single user record.  Given parameters must uniquely
@@ -187,6 +188,10 @@ def get_record(self, template: Union[str, pd.Series, None] = None,
         The template or template title to limit the search by.
     title : str, optional
         The data record title to limit the search by.
+    id : int, optional
+        The data id of the record to fetch.  Useful if you already know the
+        id and in the case where multiple records may have been assigned the
+        same title.
     parse_dates : bool, optional
         If True (default) then date fields will automatically be parsed into
         pandas.Timestamp objects.  If False they will be left as str values.
@@ -201,9 +206,15 @@ def get_record(self, template: Union[str, pd.Series, None] = None,
     ValueError
         If no or multiple matching records found.
     """
+    if id is not None:
+        if template is not None or title is not None:
+            raise ValueError('id cannot be given with template, or title')
+        r = self.get(f'/rest/data/{id}/')
+        records = pd.DataFrame([r.json()])
 
-    records = self.get_records(template=template, title=title,
-                               parse_dates=parse_dates)
+    else:
+        records = self.get_records(template=template, title=title,
+                                   parse_dates=parse_dates)
     
     # Check that number of records is exactly one.
     if len(records) == 1:
@@ -505,6 +516,7 @@ def update_record(self, record: Optional[pd.Series] = None,
 def delete_record(self, record: Optional[pd.Series] = None,
                   template: Union[str, pd.Series, None] = None,
                   title: Optional[str] = None,
+                  id: Optional[int] = None,
                   verbose: bool = False):
     """
     Deletes a single data record from the curator.
@@ -520,14 +532,25 @@ def delete_record(self, record: Optional[pd.Series] = None,
     title : str, optional
         Title of the record to delete.  template + title values must uniquely
         identify one record.
+    id : int, optional
+        The data id of the record to delete.  This is alternate to using the
+        above parameters and useful if you know the record id, or if multiple
+        records somehow got assigned the same title.
     verbose : bool, optional
         Setting this to True will print extra status messages.  Default value
         is False.
     """
-    if record is None:
-        record = self.get_record(template=template, title=title)
+    if id is not None:
+        if record is not None or template is not None or title is not None:
+            raise ValueError('id cannot be given with record, template, or title')
+        record = self.get_record(id=id)
+        rest_url = f'/rest/data/{id}/'
+
+    else:
+        if record is None:
+            record = self.get_record(template=template, title=title)
+        rest_url = f'/rest/data/{record.id}/'
     
-    rest_url = f'/rest/data/{record.id}/'
     response = self.delete(rest_url)
     
     if verbose and response.status_code == 204:
