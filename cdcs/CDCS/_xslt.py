@@ -2,7 +2,6 @@
 
 # Standard library imports
 from pathlib import Path
-from re import template
 from typing import Optional, Union
 
 # https://pandas.pydata.org/
