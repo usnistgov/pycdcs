@@ -80,8 +80,7 @@ class TestRestClient():
         
         # Mock good response
         with responses.RequestsMock() as rsps:
-            rsps.add(responses.HEAD, f'{self.host}/{rest_url}', status=200,
-                     json={'value':"good!"})
+            rsps.add(responses.HEAD, f'{self.host}/{rest_url}', status=200)
             r = client.head(rest_url)
 
     def test_get(self):
