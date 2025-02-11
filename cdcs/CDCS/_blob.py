@@ -13,7 +13,9 @@ from .. import aslist, date_parser
 
 blob_keys = ['id', ',user_id', 'filename', 'handle', 'upload_date', 'pid']
 
-def upload_blob(self, filename: Union[str, Path],
+def upload_blob(self,
+                filename: Union[str, Path],
+                pid: Union[str, bool, None] = None,
                 blobbytes: Optional[io.BytesIO] = None,
                 workspace: Union[str, pd.Series, None] = None,
                 verbose: bool = False) -> str:
@@ -24,6 +26,12 @@ def upload_blob(self, filename: Union[str, Path],
     ----------
     filename : str or Path
         The path to the file to upload.
+    pid : str, bool or None, optional
+        A unique PID to associate with the file that can be used to retrieve
+        the blob rather than the default randomly assigned id.  May require
+        superuser status to use.  If None (default) or False, no PID will be
+        assigned. If True, the filename will be used as the PID. A str value
+        specifies the PID value to use.
     blobbytes : io.BytesIO, optional
         Pre-loaded file contents.  Allows files already opened to be passed in.
     workspace : str or pandas.Series, optional
@@ -48,18 +56,35 @@ def upload_blob(self, filename: Union[str, Path],
     
     # Set file name
     data  = {}
-    data = {'filename': filename}
+    data['filename'] = filename
     
-    # Send request
-    rest_url = '/rest/blob/'
-    response = self.post(rest_url, files=files, data=data)
-    blob = pd.Series(response.json())
+    if pid is True:
+        pid = filename
+    
+    # Send request without PID
+    if pid is None or pid is False:
+        rest_url = '/rest/blob/'
+        
+        response = self.post(rest_url, files=files, data=data)
+        blob = pd.Series(response.json())
 
-    if verbose and response.status_code == 201:    
-        print(f'File "{filename}" uploaded as blob "{blob.filename}" ({blob.id})')
+        if verbose and response.status_code == 201:    
+            print(f'File "{filename}" uploaded as blob "{blob.filename}" ({blob.id})')    
     
+    # Send request with PID
+    else:
+        rest_url = 'pid/rest/upload-blob-pid'
+        data['pid'] = pid
+    
+        response = self.post(rest_url, files=files, data=data)
+        blob = pd.Series(response.json())
+
+        if verbose and response.status_code == 201:    
+            print(f'File "{filename}" uploaded as blob "{blob.filename}" ({blob.id}) with pid "{blob.pid}"')
+
+    # Assign blob to workspace
     if workspace is not None:
-        assign_blobs(self, workspace, ids=blob.id, verbose=verbose)
+        self.assign_blobs(workspace, ids=blob.id, verbose=verbose)
 
     return blob.handle
     
