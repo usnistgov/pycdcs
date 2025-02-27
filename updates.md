@@ -1,5 +1,7 @@
 # Updates
 
+*Version 0.2.5* Minor fixes for the tests to pass for newer python versions.
+
 *Version 0.2.4* PID support added to upload_blob().  get_record() now supports retrieval directly by database id which can be useful if you already know the id from a previous query or if there happens to be multiple entries with the same template+title.
 
 *Version 0.2.3* PID PATH/XPATH operations updated to reflect xpath->path renaming in CDCS database version 3.6.  Code cleanup that should have no effect except that Python < 3.7 no longer supported. The ability to toggle the auto_set_pid added and integrated into upload_record() and update_record() methods.  A retry504 option added to RestClient.requests to retry a REST call if the connection is poor.  Bug fixes related to CDCS version 3 databases.  Default column titles added for when get_templates and get_template_managers finds no matches to help avoid bugs.
