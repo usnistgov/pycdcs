@@ -65,7 +65,8 @@ class CDCS(RestClient):
     from ._template import (get_template_managers, disable_template_manager,
                             restore_template_manager, get_templates, get_template,
                             template_titles, upload_template, update_template,
-                            disable_template, restore_template, set_current_template)
+                            disable_template, restore_template, set_current_template,
+                            templates_dataframe)
 
     from ._query import query, query_count
 

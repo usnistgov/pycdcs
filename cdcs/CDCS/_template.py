@@ -704,3 +704,42 @@ def set_current_template(self,
 
     if verbose:
         print(f'template with id {template_id} set as current version')
+
+def templates_dataframe(self,
+                        template: Union[list, str, pd.Series, pd.DataFrame, None] = None,
+                        current: bool = True) -> pd.DataFrame:
+    """
+    Handles interpreting the different template representations and converting
+    them all into a pandas DataFrame.
+    """
+    # Build templates DataFrame from template parameter based on data type
+    if template is None:
+        templates = self.get_templates(current=current)
+
+    elif isinstance(template, str):
+        templates = self.get_templates(title=template, current=current)
+
+    elif isinstance(template, pd.Series):
+        templates = pd.DataFrame([template])
+
+    elif isinstance(template, list):
+        ts = []
+        for t in template:
+            # Check list item type and fetch template as needed
+            if isinstance(t, str):
+                matches = self.get_templates(title=t, current=current)
+                for index in matches.index:
+                    ts.append(matches.loc[index])
+            elif isinstance(t, pd.Series):
+                ts.append(t)
+            else:
+                raise TypeError('invalid template list item type: must be str or pandas.Series')
+        templates = pd.DataFrame(ts)
+        
+    elif isinstance(template, pd.DataFrame):
+        templates = template
+    
+    else:
+        raise TypeError('Invalid template type: must be str, list, None, pandas.Series or pandas.DataFrame')
+    
+    return templates

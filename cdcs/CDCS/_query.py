@@ -24,7 +24,8 @@ def query(self,
           mongoquery: Union[str, dict, None] = None,
           page: Optional[int] = None,
           parse_dates: bool = True,
-          progress_bar: bool = True) -> pd.DataFrame:
+          progress_bar: bool = True,
+          current: bool = True) -> pd.DataFrame:
     """
     Search all published local data records using either keyword or mongo-style
     queries. Note: specifying no parameters will return all records in the
@@ -54,6 +55,12 @@ def query(self,
     progress_bar : bool, optional
         If True (default) a progress bar will be displayed for multi-page
         query results.
+    current : bool, optional
+        If set to False, then records matching all versions of matching
+        templates will be queried.  Default is True.  This is ignored if
+        template is a pandas.Series or pandas.DataFrame as those
+        representations include version information.
+    
     Returns
     -------
     pandas.DataFrame
@@ -63,7 +70,10 @@ def query(self,
     ------
     ValueError
         If query and keyword are both given.
-    """  
+    """
+
+    templates = self.templates_dataframe(template, current=current)
+
     # Set data based on arguments
     data = {'all': 'true'} 
     data = {}
@@ -84,31 +94,17 @@ def query(self,
     else:
         rest_url = '/rest/data/query/'
         data['query'] = '{}'
-    
+
     # Manage template 
     if template is not None:
         data['templates'] = []
-        
-        # Handle DataFrames
-        if isinstance(template, pd.DataFrame):
-            templates = template
-            for template_id in template.id.values:
+        for template_id in templates.id.values:
+            if self.cdcsversion[0] > 2:
+                data['templates'].append({"id":int(template_id)})
+            else:
                 data['templates'].append({"id":template_id})
-        else:
-            for t in aslist(template):
-                templates = []
-                if not isinstance(t, pd.Series):
-                    t = self.get_template(title=t)
-                t_id = t.id
-                if self.cdcsversion[0] > 2:
-                    t_id = int(t_id)
-                data['templates'].append({"id":t_id})
-                templates.append(t)
-            templates = pd.DataFrame(templates)
                     
         data['templates'] = json.dumps(data['templates'])
-    else:
-        templates = self.get_templates()
 
     # Manage title
     if title is not None:
@@ -173,6 +169,7 @@ def query_count(self,
                 title: Optional[str] = None,
                 keyword: Union[str, list, None] = None,
                 mongoquery: Union[str, dict, None] = None,
+                current: bool = True,
                 ) -> pd.DataFrame:
     """
     Search all published local data records using either keyword or mongo-style
@@ -192,6 +189,11 @@ def query_count(self,
         Mongodb find query to use in limiting searches by record element
         fields.  Note: only record parsing is supported, not field projection.
         keyword and mongoquery cannot both be given.
+    current : bool, optional
+        If set to False, then records matching all versions of matching
+        templates will be queried.  Default is True.  This is ignored if
+        template is a pandas.Series or pandas.DataFrame as those
+        representations include version information.
 
     Returns
     -------
@@ -203,6 +205,9 @@ def query_count(self,
     ValueError
         If query and keyword are both given.
     """
+
+    templates = self.templates_dataframe(template, current=current)
+
     # Set data based on arguments
     data = {'all': 'true'} 
     data = {}
@@ -227,27 +232,13 @@ def query_count(self,
     # Manage template 
     if template is not None:
         data['templates'] = []
-        
-        # Handle DataFrames
-        if isinstance(template, pd.DataFrame):
-            templates = template
-            for template_id in template.id.values:
+        for template_id in templates.id.values:
+            if self.cdcsversion[0] > 2:
+                data['templates'].append({"id":int(template_id)})
+            else:
                 data['templates'].append({"id":template_id})
-        else:
-            for t in aslist(template):
-                templates = []
-                if not isinstance(t, pd.Series):
-                    t = self.get_template(title=t)
-                t_id = t.id
-                if self.cdcsversion[0] > 2:
-                    t_id = int(t_id)
-                data['templates'].append({"id":t_id})
-                templates.append(t)
-            templates = pd.DataFrame(templates)    
                     
         data['templates'] = json.dumps(data['templates'])
-    else:
-        templates = self.get_templates()
 
     # Manage title
     if title is not None:
@@ -258,6 +249,7 @@ def query_count(self,
     response_json = response.json()
 
     return response_json['count']
+
 
 def query_ipyparallel(self,
                       client,
