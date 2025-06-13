@@ -96,7 +96,7 @@ def query(self,
         data['query'] = '{}'
 
     # Manage template 
-    if template is not None:
+    if template is not None or current is True:
         data['templates'] = []
         for template_id in templates.id.values:
             if self.cdcsversion[0] > 2:

@@ -10,6 +10,10 @@ def query_responses(host, version=3):
     # Query with no parameters, page 1
     params = {}
     data = {'query': '{}'}
+    if version == 2:
+        data['templates'] = '[{"id": "1"}, {"id": "3"}]'
+    else:
+        data['templates'] = '[{"id": 1}, {"id": 3}]'
     json = {'count':12, 'next':f'{host}/rest/data/query/?page=2', 'previous':None, 'results':records[:10]}
     responses.add(responses.POST, f'{host}/rest/data/query/',
                   match=[
@@ -26,6 +30,10 @@ def query_responses(host, version=3):
     # Query with no parameters, page 2
     params = {'page':"2"}
     data = {'query': '{}'}
+    if version == 2:
+        data['templates'] = '[{"id": "1"}, {"id": "3"}]'
+    else:
+        data['templates'] = '[{"id": 1}, {"id": 3}]'
     json = {'count':12, 'next':None, 'previous':f'{host}/rest/data/query/', 'results':records[10:]}
     responses.add(responses.POST, f'{host}/rest/data/query/',
                   match=[
@@ -67,6 +75,10 @@ def query_responses(host, version=3):
     params = {}
     data = {}
     data['query'] = '{}'
+    if version == 2:
+        data['templates'] = '[{"id": "1"}, {"id": "3"}]'
+    else:
+        data['templates'] = '[{"id": 1}, {"id": 3}]'
     data['title'] = 'second-record-2'
     json = {'count':1, 'next':None, 'previous':None, 'results':records[9:10]}
     responses.add(responses.POST, f'{host}/rest/data/query/',
@@ -79,6 +91,10 @@ def query_responses(host, version=3):
     params = {}
     data = {}
     data['query'] = '{}'
+    if version == 2:
+        data['templates'] = '[{"id": "1"}, {"id": "3"}]'
+    else:
+        data['templates'] = '[{"id": 1}, {"id": 3}]'
     data['title'] = 'first-record-4'
     json = {'count':1, 'next':None, 'previous':None, 'results':records[3:4]}
     responses.add(responses.POST, f'{host}/rest/data/query/',
@@ -91,6 +107,10 @@ def query_responses(host, version=3):
     params = {}
     data = {}
     data['query'] = '{}'
+    if version == 2:
+        data['templates'] = '[{"id": "1"}, {"id": "3"}]'
+    else:
+        data['templates'] = '[{"id": 1}, {"id": 3}]'
     data['title'] = 'second-record-4'
     if version == 2:
         data['templates'] = '[{"id": "3"}]'
@@ -106,6 +126,10 @@ def query_responses(host, version=3):
     params = {}
     data = {}
     data['query'] = '{}'
+    if version == 2:
+        data['templates'] = '[{"id": "1"}, {"id": "3"}]'
+    else:
+        data['templates'] = '[{"id": 1}, {"id": 3}]'
     data['title'] = 'first-record-4'
     if version == 2:
         data['templates'] = '[{"id": "1"}]'
@@ -121,6 +145,10 @@ def query_responses(host, version=3):
     # Query with query
     params = {}
     data = {'query': '{"first.name": "first-record-7"}'}
+    if version == 2:
+        data['templates'] = '[{"id": "1"}, {"id": "3"}]'
+    else:
+        data['templates'] = '[{"id": 1}, {"id": 3}]'
     json = {'count':1, 'next':None, 'previous':None, 'results':records[6:7]}
     responses.add(responses.POST, f'{host}/rest/data/query/',
                   match=[
@@ -131,6 +159,10 @@ def query_responses(host, version=3):
     # Query with keyword
     params = {}
     data = {'query': 'first-record-3'}
+    if version == 2:
+        data['templates'] = '[{"id": "1"}, {"id": "3"}]'
+    else:
+        data['templates'] = '[{"id": 1}, {"id": 3}]'
     json = {'count':1, 'next':None, 'previous':None, 'results':records[2:3]}
     responses.add(responses.POST, f'{host}/rest/data/query/keyword/',
                   match=[
