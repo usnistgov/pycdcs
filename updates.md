@@ -1,5 +1,7 @@
 # Updates
 
+*Version 0.2.6* Improvements to how queries are performed on templates that have multiple versions.  Default cdcsversion increased to 3.10.
+
 *Version 0.2.5* Minor fixes for the tests to pass for newer python versions.
 
 *Version 0.2.4* PID support added to upload_blob().  get_record() now supports retrieval directly by database id which can be useful if you already know the id from a previous query or if there happens to be multiple entries with the same template+title.

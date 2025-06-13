@@ -75,7 +75,7 @@ class TestCDCS():
         assert cdcs.username is None
         assert cdcs.cert is None
         assert cdcs.verify is True
-        assert cdcs.cdcsversion == (3, 2, 0)
+        assert cdcs.cdcsversion == (3, 10, 0)
 
         # Test #1: anonymous good authentication
         with responses.RequestsMock() as rsps:

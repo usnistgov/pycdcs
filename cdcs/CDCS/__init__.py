@@ -118,7 +118,7 @@ class CDCS(RestClient):
 
             # Guess a version 3 if call exists but permissions denied
             elif r.status_code == 401:
-                cdcsversion = (3, 2, 0)
+                cdcsversion = (3, 10, 0)
 
             # Guess a version 2 if call does not exist
             elif r.status_code == 404:
