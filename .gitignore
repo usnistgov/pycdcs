@@ -17,3 +17,6 @@ upload_package.bash
 # VSCode metadata
 .vscode
 
+# uv
+uv.lock
+.venv

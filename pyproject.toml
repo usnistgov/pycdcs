@@ -1,6 +1,59 @@
-[build-system]
-requires = [
-    "setuptools>=42",
-    "wheel"
+[project]
+name = "cdcs"
+version = "0.2.6"
+description = "Python API client for performing REST calls to configurable data curation system (CDCS) databases"
+readme = "README.md"
+requires-python = ">=3.7"
+dependencies = [
+    'requests',
+    'pandas',
+    'tqdm',
+    'ipython'
 ]
-build-backend = "setuptools.build_meta"
+authors = [
+  {name = "Lucas Hale", email = "lucas.hale@nist.gov"}
+]
+license = "NIST-Software"
+keywords = [
+    'CDCS', 
+    'database', 
+    'rest API', 
+    'configurable data curation system',
+]
+classifiers = [
+    'Development Status :: 5 - Production/Stable',
+    'Intended Audience :: Science/Research',
+    'Natural Language :: English',
+    'Operating System :: OS Independent',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
+    'Programming Language :: Python :: 3.13',
+    'Programming Language :: Python :: 3.14',
+    'Topic :: Text Processing :: Markup :: XML',
+    'Topic :: Scientific/Engineering :: Physics'
+]
+      
+[project.urls]
+Homepage = "https://github.com/usnistgov/pycdcs/"
+Documentation = "https://github.com/usnistgov/pycdcs"
+Repository = "https://github.com/usnistgov/pycdcs.git"
+Changelog = "https://github.com/usnistgov/pycdcs/blob/master/updates.md"
+
+[build-system]
+requires = ["uv_build>=0.11.26,<0.12"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "cdcs"
+module-root = ""
+
+[dependency-groups]
+dev = [
+    "pytest>=7.4.4",
+    "responses",
+]
