@@ -1,5 +1,3 @@
-# coding: utf-8
-
 # Standard library imports
 import io
 from pathlib import Path

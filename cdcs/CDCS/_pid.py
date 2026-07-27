@@ -1,6 +1,8 @@
+# Standard library imports
 from typing import Union
 import contextlib
 
+# https://pandas.pydata.org/
 import pandas as pd
 
 @property

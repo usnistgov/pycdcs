@@ -1,11 +1,8 @@
-# coding: utf-8
-
 # Standard library imports
 from typing import Optional, Union
-from tqdm import tqdm
-
-# Standard library imports
 import json
+
+from tqdm import tqdm
 
 # https://pandas.pydata.org/
 import pandas as pd

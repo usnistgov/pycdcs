@@ -1,10 +1,7 @@
-# coding: utf-8
-
 # Standard library imports
 import getpass
 from pathlib import Path
 from typing import Optional, Union, Tuple
-
 
 # http://docs.python-requests.org
 import requests
@@ -222,6 +219,8 @@ class RestClient(object):
         count504 = 0
         while True:
             # Send request
+            print(method, url, auth, verify, cert)
+            print(kwargs)
             response = requests.request(method, url, auth=auth, verify=verify,
                                         cert=cert, **kwargs)
             

@@ -1,5 +1,3 @@
-# coding: utf-8
-
 # https://pandas.pydata.org/
 import pandas as pd
 

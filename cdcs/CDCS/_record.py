@@ -1,16 +1,17 @@
-# coding: utf-8
-
 # Standard library imports
 from pathlib import Path
 from typing import Optional, Union
 
+# https://tqdm.github.io/
 from tqdm import tqdm
 
+# https://ipython.org/
 from IPython.display import display, HTML
 
 # https://pandas.pydata.org/
 import pandas as pd
 
+# Local imports
 from .. import aslist, date_parser
 
 record_keys = ['id', 'template', 'workspace', 'user_id', 'title', 'xml_content',

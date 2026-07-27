@@ -1,5 +1,3 @@
-# coding: utf-8
-
 # Standard library imports
 from pathlib import Path
 from typing import Optional, Union
