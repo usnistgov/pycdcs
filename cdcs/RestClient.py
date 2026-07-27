@@ -17,8 +17,9 @@ class RestClient(object):
     def __init__(self, host: str,
                  username: Optional[str] = None,
                  password: Optional[str] = None,
-                 auth: Optional[Tuple[str]] = None,
+                 auth: Union[Tuple[str], bool, None] = None,
                  cert: Union[str, Tuple[str], None] = None, 
+                 headers: Optional[dict] = None,
                  certification: Union[str, Tuple[str], None] = None,
                  verify: Optional[bool] = True):
         """
@@ -30,18 +31,22 @@ class RestClient(object):
             URL for the database's server.
         username : str, optional
             Username of desired account on the server. A prompt will ask for
-            the username if not given.
+            the username if not given. An empty str '' indicates that no
+            authentication information is needed.
         password : str, optional
             Password of desired account on the server.  A prompt will ask for
             the password if not given.
-        auth : tuple, optional
+        auth : tuple or bool, optional
             Auth tuple to enable Basic/Digest/Custom HTTP Auth.  Alternative to
-            giving username and password seperately.
+            giving username and password separately.
         cert : str, optional
             if String, path to ssl client cert file (.pem). If Tuple,
             ('cert', 'key') pair.
         certification : str, optional
             Alias for cert. Retained for compatibility.
+        headers : dict, optional
+            Any headers content that should be specified whenever making a rest
+            call.
         verify : bool or str, optional
             Either a boolean, in which case it controls whether we verify the
             server's TLS certificate, or a string, in which case it must be a
@@ -50,7 +55,7 @@ class RestClient(object):
         # Set access information
         self.login(host, username=username, password=password,
                    auth=auth, cert=cert, certification=certification,
-                   verify=verify)
+                   headers=headers, verify=verify)
 
     def __str__(self) -> str:
         """str: String representation gives username and host info."""
@@ -70,6 +75,11 @@ class RestClient(object):
     def cert(self) -> Optional[str]:
         """str or None: The certification information."""
         return self.__cert
+    
+    @property
+    def headers(self) -> Optional[dict]:
+        """dict or None: The headers information."""
+        return self.__headers
 
     @property
     def verify(self) -> bool:
@@ -82,6 +92,7 @@ class RestClient(object):
               auth: Optional[Tuple[str]] = None,
               cert: Union[str, Tuple[str], None] = None, 
               certification: Union[str, Tuple[str], None] = None,
+              headers: Optional[dict] = None,
               verify: Optional[bool] = True):
         """
         Tests and stores access information.
@@ -159,6 +170,7 @@ class RestClient(object):
         self.__auth = auth
         self.__cert = cert
         self.__verify = verify
+        self.__headers = headers
 
         # Test login info
         if self.__user is not None:
@@ -214,6 +226,7 @@ class RestClient(object):
         auth = kwargs.pop('auth', self.__auth)
         cert = kwargs.pop('cert', self.cert)
         verify = kwargs.pop('verify', self.verify)
+        headers = kwargs.pop('headers', self.headers)
         
         # Loop to repeat request calls
         count504 = 0
@@ -222,7 +235,7 @@ class RestClient(object):
             print(method, url, auth, verify, cert)
             print(kwargs)
             response = requests.request(method, url, auth=auth, verify=verify,
-                                        cert=cert, **kwargs)
+                                        cert=cert, headers=headers, **kwargs)
             
             # Count 504 Gateway timeout errors
             if response.status_code == 504:

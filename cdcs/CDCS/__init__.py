@@ -1,5 +1,6 @@
 # Standard library imports
 from typing import Optional, Union, Tuple
+from pathlib import Path
 
 # Local imports
 from .. import RestClient
@@ -12,9 +13,11 @@ class CDCS(RestClient):
     def __init__(self, host: str,
                  username: Optional[str] = None,
                  password: Optional[str] = None,
+                 token: Union[str, Path, None] = None,
                  auth: Optional[Tuple[str]] = None,
                  cert: Union[str, Tuple[str], None] = None,
                  certification: Union[str, Tuple[str], None] = None,
+                 headers: Optional[dict] = None,
                  verify: Optional[bool] = True,
                  cdcsversion: Optional[str] = None):
         """
@@ -26,10 +29,15 @@ class CDCS(RestClient):
             URL for the database's server.
         username : str, optional
             Username of desired account on the server. A prompt will ask for
-            the username if not given.
+            the username if not given. An empty str '' indicates that no
+            authentication information is needed.
         password : str, optional
             Password of desired account on the server.  A prompt will ask for
             the password if not given.
+        token : str or file path, optional
+            An access token to the CDCS instance.  Can be given directly as a
+            str or by giving the name/path to a file containing only the token.
+            If you use a token, set username='' to skip the prompts.
         auth : tuple, optional
             Auth tuple to enable Basic/Digest/Custom HTTP Auth.  Alternative to
             giving username and password separately.
@@ -38,6 +46,10 @@ class CDCS(RestClient):
             ('cert', 'key') pair.
         certification : str, optional
             Alias for cert. Retained for compatibility.
+        headers : dict, optional
+            Any headers content that should be specified whenever making a rest
+            call. If token is given, the headers content will be modified to
+            include it. 
         verify : bool or str, optional
             Either a boolean, in which case it controls whether we verify the
             server's TLS certificate, or a string, in which case it must be a
@@ -48,10 +60,23 @@ class CDCS(RestClient):
             "#.#.#".  If not given, will attempt to infer or guess an appropriate
             version that is likely to work.
         """
+        if token is not None:
+            # Read token from file if it is a file
+            if Path(token).is_file():
+                with open(token) as f:
+                    token = f.read().strip()
+            
+            # Initialize headers if needed
+            if headers is None:
+                headers = {}
+            
+            # Add token to headers
+            headers = {'Authorization': f'Token {token}'}
 
         # Call RestClient's init
         super().__init__(host, username=username, password=password, auth=auth,
-                         cert=cert, certification=certification, verify=verify)
+                         cert=cert, certification=certification, headers=headers,
+                         verify=verify)
 
         # Handle CDCS version
         self.set_cdcsversion(cdcsversion=cdcsversion)
