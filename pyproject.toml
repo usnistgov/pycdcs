@@ -1,6 +1,6 @@
 [project]
 name = "cdcs"
-version = "0.2.6"
+version = "0.2.7"
 description = "Python API client for performing REST calls to configurable data curation system (CDCS) databases"
 readme = "README.md"
 requires-python = ">=3.7"
@@ -54,6 +54,7 @@ module-root = ""
 
 [dependency-groups]
 dev = [
+    "ipykernel>=6.16.2",
     "pytest>=7.4.4",
     "responses",
 ]
