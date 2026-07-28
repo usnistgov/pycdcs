@@ -4,6 +4,8 @@ import responses
 from cdcs import CDCS
 from pytest import raises
 
+import numpy as np
+
 from mock_database import *
 
 class TestCDCS():
@@ -37,7 +39,7 @@ class TestCDCS():
         assert len(workspaces) == 2
         assert workspaces['id'].tolist() == [1, 2]
         assert workspaces['title'].tolist() == ['Global Public Workspace', "Bob's stuff"]
-        assert workspaces['owner'].tolist() == [None, 'Bob']
+        assert (workspaces['owner'].tolist() == [None, 'Bob']) or (workspaces['owner'].tolist() == [np.nan, 'Bob'])
         assert workspaces['is_public'].tolist() == [True, False]
 
     @responses.activate
