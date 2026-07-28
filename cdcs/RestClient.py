@@ -14,14 +14,16 @@ class RestClient(object):
     """
     Generic class for building REST calls to web databases in Python.
     """
-    def __init__(self, host: str,
+    def __init__(self,
+                 host: str,
                  username: Optional[str] = None,
                  password: Optional[str] = None,
                  auth: Union[Tuple[str], bool, None] = None,
                  cert: Union[str, Tuple[str], None] = None, 
                  headers: Optional[dict] = None,
                  certification: Union[str, Tuple[str], None] = None,
-                 verify: Optional[bool] = True):
+                 verify: Optional[bool] = True,
+                 hidden: Optional[dict] = None):
         """
         Class initializer. Tests and stores access information.
         
@@ -51,7 +53,16 @@ class RestClient(object):
             Either a boolean, in which case it controls whether we verify the
             server's TLS certificate, or a string, in which case it must be a
             path to a CA bundle to use. Defaults to True.
+        hidden : dict or None, optional
+            A dict containing values that may be contained in headers that
+            should be hidden from view except when REST calls are made.
         """
+        # Add/init hidden dict
+        if isinstance(hidden, dict):
+            self.__hidden = hidden
+        elif hidden is None:
+            self.__hidden = {}
+
         # Set access information
         self.login(host, username=username, password=password,
                    auth=auth, cert=cert, certification=certification,
@@ -226,14 +237,12 @@ class RestClient(object):
         auth = kwargs.pop('auth', self.__auth)
         cert = kwargs.pop('cert', self.cert)
         verify = kwargs.pop('verify', self.verify)
-        headers = kwargs.pop('headers', self.headers)
+        headers = self.__reveal_hidden(kwargs.pop('headers', self.headers))
         
         # Loop to repeat request calls
         count504 = 0
         while True:
             # Send request
-            print(method, url, auth, verify, cert)
-            print(kwargs)
             response = requests.request(method, url, auth=auth, verify=verify,
                                         cert=cert, headers=headers, **kwargs)
             
@@ -431,3 +440,73 @@ class RestClient(object):
             Any requests errors if the response code is not ok.
         """
         return self.request('delete', rest_url, **kwargs)
+
+    def add_hidden(self,
+                   name: str,
+                   value: str):
+        """
+        Adds/updates a value that should be hidden from view except
+        when REST calls are made.
+        """
+        self.__hidden[name] = value
+
+    def __reveal_hidden_string(self, string: str):
+
+        """
+        Takes a string that may contain hidden values and fills them in
+    
+        Parameters
+        ----------
+        string : str
+            The string that may contain hidden values.
+        
+        Returns
+        -------
+        str
+            The input string with hidden values filled in.
+        """
+        for key, value in self.__hidden.items():
+            label = f'Hidden({key})'
+            string = string.replace(label, value)
+
+        return string
+
+    def __reveal_hidden(self, value):
+        """
+        Searches through dict and list of tuple terms to fill in any hidden
+        values.
+
+        Parameters
+        ----------
+        value : dict, list or str
+            Where hidden values may be located.
+        
+        Returns
+        -------
+        value : dict, list or str
+            Same as the input, but with hidden values filled in.
+        """
+        if isinstance(value, dict):
+            newdict = {}
+            for k,v in value.items():
+                if isinstance(v, str):
+                    newdict[k] = self.__reveal_hidden_string(v)
+                else:
+                    newdict[k] = v
+            return newdict
+    
+        elif isinstance(value, (list, tuple)):
+            newlist = []
+            for item in value:
+                k,v = item
+                if isinstance(v, str):
+                    newlist.append((k, self.__reveal_hidden_string(v)))
+                else:
+                    newlist.append((k, v))
+            return newlist
+    
+        elif isinstance(value, str):
+            return self.__reveal_hidden_string(value)
+    
+        else:
+            return value
